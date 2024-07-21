@@ -26,7 +26,6 @@ const RegionSelector = ({
   const [locality, setLocality] = useState([]);
 
   const getLocalitiesByDistrict = (district: string) => {
-    console.log("here");
     const { today } = data;
     const results = today
       .filter(

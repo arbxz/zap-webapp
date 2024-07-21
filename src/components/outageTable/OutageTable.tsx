@@ -39,8 +39,7 @@ const OutageTable = ({ data, isLoading, selectedRegion }: OutageTableProps) => {
   }
 
   useEffect(() => {
-    const { today } = data;
-    const { future } = data;
+    const { today, future } = data;
 
     setTodayData(today);
     setFutureData(future);
