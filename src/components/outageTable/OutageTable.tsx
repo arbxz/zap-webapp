@@ -116,7 +116,7 @@ const OutageTable = ({ data, isLoading, selectedRegion }: OutageTableProps) => {
                 </TableRow>
               ))}
 
-            {!isLoading && todayData.length === 0 && (
+            {!isLoading && todayData && todayData.length === 0 && (
               <TableCell colSpan={7} className="text-xl  p-16 text-center">
                 No outages found
               </TableCell>
@@ -181,7 +181,7 @@ const OutageTable = ({ data, isLoading, selectedRegion }: OutageTableProps) => {
                 </TableRow>
               ))}
 
-            {!isLoading && futureData.length === 0 && (
+            {!isLoading && futureData && futureData.length === 0 && (
               <TableCell colSpan={7} className="text-xl  p-16 text-center">
                 No outages found
               </TableCell>
