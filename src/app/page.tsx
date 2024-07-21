@@ -46,11 +46,6 @@ export default function Home() {
             </a>
           </code>
         </div>
-
-        {/* <Button className="flex gap-4 rounded-full ">
-          <Github />
-          Arbxz
-        </Button> */}
       </nav>
       <div className="flex flex-wrap lg:flex-nowrap gap-8 w-full">
         <RegionSelector
