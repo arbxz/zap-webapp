@@ -1,3 +1,5 @@
+"use client";
+
 import { Zap } from "lucide-react";
 import {
   Select,
@@ -6,43 +8,90 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { District } from "@/app/types";
+import { District } from "@/constants";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { OutageItem } from "@/app/types";
 
-const RegionSelector = () => {
-  const isRegionSelected = false;
-  // write util function to get district
+interface RegionSelectorProps {
+  setSelectedRegion: Dispatch<SetStateAction<string>>;
+  selectedRegion: string;
+  data: any;
+}
+
+const RegionSelector = ({
+  setSelectedRegion,
+  data,
+  selectedRegion,
+}: RegionSelectorProps) => {
+  const [locality, setLocality] = useState([]);
+
+  const getLocalitiesByDistrict = (district: string) => {
+    console.log("here");
+    const { today } = data;
+    const results = today
+      .filter(
+        (item: OutageItem) =>
+          item.district.toLowerCase() === district.toLowerCase()
+      )
+      .reduce((uniqueLocalities: string[], item: OutageItem) => {
+        const locality = item.locality;
+        if (!uniqueLocalities.includes(locality)) {
+          uniqueLocalities.push(locality);
+        }
+        return uniqueLocalities;
+      }, []);
+
+    setSelectedRegion(district);
+    setLocality(results);
+  };
+
   return (
-    <div className="max-w-[300px] flex flex-col p-6 shadow gap-4 items-center justify-center rounded-lg mt-12">
-      <div className="p-4 rounded-full border-2 animate-pulse ">
-        <Zap width={36} height={36} />
-      </div>
-      <Select>
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Region" />
-        </SelectTrigger>
-        <SelectContent>
-          {District.map((region: string) => (
-            <SelectItem className="capitalize" key={region} value={region}>
-              {region}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      {isRegionSelected && (
-        <div>
-          <p className="text-center text-gray-600 mb-2 ">
-            Expect a powercut in these regions today.
-          </p>
-
-          <ul className="text-center grid gap-2">
-            <li className="px-4 py-4 border-b-[1px] ">Region a</li>
-            <li className="px-4 py-4 border-b-[1px] ">Region a</li>
-            <li className="px-4 py-4 border-b-[1px] ">Region a</li>
-            <li className="px-4 py-4 border-b-[1px] ">Region a</li>
-          </ul>
+    <div className="w-full lg:w-[300px] mt-12 transition-all duration-300">
+      <div className="flex flex-col gap-4 items-center justify-start p-6 shadow rounded-lg">
+        <div
+          className={`p-4 rounded-full border-2 animate-pulse transition-colors  ${
+            locality.length > 0 && "text-white bg-gray-800 "
+          }`}>
+          <Zap width={36} height={36} />
         </div>
-      )}
+        <Select
+          onValueChange={(e) => {
+            getLocalitiesByDistrict(e);
+          }}>
+          <SelectTrigger className="w-[180px] focus:ring-0">
+            <SelectValue placeholder="Region" />
+          </SelectTrigger>
+          <SelectContent>
+            {District.map((district: string) => (
+              <SelectItem
+                className="capitalize"
+                key={district}
+                value={district}>
+                {district}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {selectedRegion && locality.length > 0 ? (
+          <div>
+            <p className="text-center text-gray-600 mb-2 ">
+              Expect a powercut in these regions today.
+            </p>
+
+            <ul className="text-center grid gap-2">
+              {locality.map((item) => (
+                <li
+                  key={item}
+                  className="px-4 py-4 border-b-[1px] capitalize text-sm">
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : (
+          <div>No outages</div>
+        )}
+      </div>
     </div>
   );
 };

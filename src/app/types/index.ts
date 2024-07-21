@@ -1,16 +1,3 @@
-export const District = [
-  "blackriver",
-  "flacq",
-  "grandport",
-  "moka",
-  "pamplemousses",
-  "plainewilhems",
-  "portlouis",
-  "rivieredurempart",
-  "savanne",
-  "rodrigues",
-];
-
 export interface OutageRecord {
   date: string;
   locality: string;
@@ -26,8 +13,8 @@ export interface OutageItem {
   locality: string;
   streets: string;
   district: string;
-  from: string;
-  to: string;
+  from: Date;
+  to: Date;
   id: string;
 }
 
