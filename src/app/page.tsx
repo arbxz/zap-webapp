@@ -1,10 +1,45 @@
-import Image from "next/image";
+"use client";
+
+import { Zap } from "lucide-react";
+import RegionSelector from "@/components/regionSelector/RegionSelector";
+import OutageTable from "@/components/outageTable/OutageTable";
+import { useEffect, useState } from "react";
+import { ApiResponse, OutageItem } from "./types";
 
 export default function Home() {
+  const [data, setData] = useState<OutageItem[]>([]);
+  const [selectedRegion, setSelectedRegion] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchDataFromAPI = async () => {
+      try {
+        const response = await fetch(process.env.URL + "/api");
+        if (response) {
+          const item: ApiResponse = await response.json();
+          setData(item.data.outage);
+          console.log(data);
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDataFromAPI();
+  }, [data]);
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        test
+    <main className="flex min-h-screen flex-col items-center justify-start p-24">
+      <nav className="mb-8">
+        <div className="animate-pulse flex gap-4 items-center font-semibold px-4 py-2 rounded-full border-2">
+          <Zap /> zap
+        </div>
+      </nav>
+      <div className="flex gap-8 w-full">
+        <RegionSelector />
+        <OutageTable data={data} />
       </div>
     </main>
   );
