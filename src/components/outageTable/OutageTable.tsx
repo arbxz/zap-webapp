@@ -77,13 +77,9 @@ const OutageTable = ({ data, isLoading, selectedRegion }: OutageTableProps) => {
               <TableHead className="w-[200px]">Date</TableHead>
               <TableHead>Locality</TableHead>
               <TableHead>Streets</TableHead>
-              <TableHead className="hidden lg:table-cell">Disctrict</TableHead>
-              <TableHead className="text-right hidden lg:table-cell">
-                From
-              </TableHead>
-              <TableHead className="text-right hidden lg:table-cell">
-                To
-              </TableHead>
+              <TableHead className="hidden">Disctrict</TableHead>
+              <TableHead className="text-right hidden ">From</TableHead>
+              <TableHead className="text-right hidden ">To</TableHead>
               <TableHead className="hidden lg:table-cell">Power</TableHead>
             </TableRow>
           </TableHeader>
@@ -99,16 +95,14 @@ const OutageTable = ({ data, isLoading, selectedRegion }: OutageTableProps) => {
                   <TableCell className="min-w-[200px]">
                     {item.streets}
                   </TableCell>
-                  <TableCell className="hidden lg:table-cell">
-                    {item.district}
-                  </TableCell>
-                  <TableCell className="text-right hidden lg:table-cell">
+                  <TableCell className="hidden ">{item.district}</TableCell>
+                  <TableCell className="text-right hidden ">
                     {formatDate(item.from.toString())}
                   </TableCell>
-                  <TableCell className="text-right hidden lg:table-cell">
+                  <TableCell className="text-right hidden ">
                     {formatDate(item.to.toString())}
                   </TableCell>
-                  <TableCell className="text-right hidden lg:table-cell">
+                  <TableCell className="text-right">
                     <div
                       className={`flex items-center justify-center w-[30px] h-[30px]  text-white rounded-full p-1 animate-pulse ${
                         Date.now() > Date.parse(item.from.toString()) &&
@@ -122,7 +116,7 @@ const OutageTable = ({ data, isLoading, selectedRegion }: OutageTableProps) => {
                 </TableRow>
               ))}
 
-            {!isLoading && todayData && (
+            {!isLoading && todayData.length === 0 && (
               <TableCell colSpan={7} className="text-xl  p-16 text-center">
                 No outages found
               </TableCell>
@@ -187,7 +181,7 @@ const OutageTable = ({ data, isLoading, selectedRegion }: OutageTableProps) => {
                 </TableRow>
               ))}
 
-            {!isLoading && futureData && (
+            {!isLoading && futureData.length === 0 && (
               <TableCell colSpan={7} className="text-xl  p-16 text-center">
                 No outages found
               </TableCell>
