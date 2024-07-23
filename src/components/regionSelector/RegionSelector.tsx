@@ -24,9 +24,15 @@ const RegionSelector = ({
   selectedRegion,
 }: RegionSelectorProps) => {
   const [locality, setLocality] = useState([]);
+  const { today } = data;
 
   const getLocalitiesByDistrict = (district: string) => {
-    const { today } = data;
+    if (district === "all") {
+      setSelectedRegion(district);
+      setLocality([]);
+      return;
+    }
+
     const results = today
       .filter(
         (item: OutageItem) =>
@@ -46,10 +52,10 @@ const RegionSelector = ({
 
   return (
     <div className="w-full lg:w-[300px] mt-12 transition-all duration-300">
-      <div className="flex flex-col gap-4 items-center justify-start p-6 shadow rounded-lg">
+      <div className="flex flex-col gap-4 items-center justify-start p-6 shadow shadow-primary-foreground rounded-lg">
         <div
-          className={`p-4 rounded-full border-2 animate-pulse transition-colors  ${
-            locality.length > 0 && "text-white bg-gray-800 "
+          className={`p-4 rounded-full border-2 border-green-600 dark:border-red-600  animate-pulse transition-colors  ${
+            locality.length > 0 && "text-white bg-green-600 "
           }`}>
           <Zap width={36} height={36} />
         </div>

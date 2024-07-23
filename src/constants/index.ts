@@ -1,4 +1,5 @@
 export const District = [
+  "all",
   "blackriver",
   "flacq",
   "grandport",
@@ -10,3 +11,12 @@ export const District = [
   "savanne",
   "rodrigues",
 ];
+
+export const Region: any = {
+  north: ["pamplemousses", "rivieredurempart", "portlouis"],
+  east: ["flacq", "grandport"],
+  west: ["blackriver"],
+  central: ["plainewilhems", "moka"],
+  south: ["savanne"],
+  rodrigues: ["rodrigues"],
+};

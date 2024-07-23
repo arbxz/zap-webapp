@@ -1,6 +1,6 @@
 "use client";
-import * as React from "react";
 
+import * as React from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,11 +12,17 @@ import { useEffect, useState } from "react";
 import { Moon, Sun, Zap } from "lucide-react";
 import RegionSelector from "@/components/regionSelector/RegionSelector";
 import OutageTable from "@/components/outageTable/OutageTable";
-import { OutageItem } from "./types";
+import { Data } from "./types";
 import { useTheme } from "next-themes";
+import Image from "next/image";
+import { Bar } from "recharts";
+import { BarchartLabel } from "@/components/barchartLabel/BarChartLabel";
 
 export default function Home() {
-  const [outageData, setOutageData] = useState<OutageItem[]>([]);
+  const [outageData, setOutageData] = useState<Data>({
+    today: [],
+    future: [],
+  });
   const [selectedRegion, setSelectedRegion] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const { setTheme } = useTheme();
@@ -43,16 +49,16 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-start p-8 lg:p-12 relative">
+    <main className="min-h-screen p-8 lg:p-12 relative">
       <nav className="flex justify-start items-center gap-8 w-full mb-8">
-        <div className="animate-pulse flex gap-4 items-center font-semibold px-4 py-2 rounded-full border-2">
+        <div className="animate-pulse bg-green-600 dark:bg-red-600 text-white flex gap-4 items-center font-semibold px-4 py-2 rounded-full border-2 shadow">
           <Zap /> zap
         </div>
-        <code className="ml-auto">
+        <span className="ml-auto text-sm">
           <a href="https://github.com/MrSunshyne" target="_blank">
-            Api by : Sandeep Ramgolam
+            Contributors : Sandeep Ramgolam ( api )
           </a>
-        </code>
+        </span>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -75,6 +81,24 @@ export default function Home() {
           </DropdownMenuContent>
         </DropdownMenu>
       </nav>
+      <div className="grid md:grid-flow-col md:grid-cols-[1fr_auto] gap-8 items-start justify-start mb-8">
+        <div className="flex flex-col justify-center items-center mb-4 gap-4 h-full md:py-16 p-4 md:px-8 shadow shadow-slate-200 dark:shadow-primary-foreground rounded-xl overflow-hidden">
+          <div
+            className={`p-4 rounded-full border-2 border-green-600 dark:border-red-600  animate-pulse transition-colors 
+          }`}>
+            <Zap width={36} height={36} />
+          </div>
+          <h1 className="text-4xl font-semibold text-green-600 dark:text-red-600">
+            ZAP <span className="animate-ping text-2xl">|</span>
+          </h1>
+          <h2 className="text-xl">
+            Monitor power outages
+            <br /> in Mauritius.
+          </h2>
+        </div>
+
+        <BarchartLabel data={outageData} />
+      </div>
       <div className="flex flex-wrap lg:flex-nowrap gap-8 w-full">
         <RegionSelector
           selectedRegion={selectedRegion}
