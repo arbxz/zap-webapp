@@ -52,32 +52,29 @@ export default function Home() {
         <div className="animate-pulse bg-green-600 dark:bg-red-600 text-white flex gap-4 items-center font-semibold px-4 py-2 rounded-full border-2 shadow">
           <Zap /> zap
         </div>
-        <span className="ml-auto text-sm">
-          <a href="https://github.com/MrSunshyne" target="_blank">
-            Contributors : Sandeep Ramgolam ( api )
-          </a>
-        </span>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon">
-              <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-              <span className="sr-only">Toggle theme</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => setTheme("light")}>
-              Light
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setTheme("dark")}>
-              Dark
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setTheme("system")}>
-              System
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="ml-auto">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon">
+                <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                <span className="sr-only">Toggle theme</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setTheme("light")}>
+                Light
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("dark")}>
+                Dark
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("system")}>
+                System
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </nav>
       <div className="grid md:grid-flow-col md:grid-cols-[1fr_auto] gap-8 items-start justify-start mb-8">
         <div className="flex flex-col justify-center items-center mb-4 gap-4 h-full md:py-16 p-4 md:px-8 shadow shadow-slate-200 dark:shadow-primary-foreground rounded-xl overflow-hidden">
@@ -109,6 +106,21 @@ export default function Home() {
           data={outageData || []}
         />
       </div>
+
+      <footer className="border-t-2 border-primary-foreground py-16">
+        <p className="text-center text-sm">
+          Made with ❤️ by{" "}
+          <a href="https://arbxz.dev" target="_blank">
+            arbxz.dev
+          </a>
+        </p>
+
+        <p className="text-center text-sm">
+          <a href="https://github.com/MrSunshyne" target="_blank">
+            Special thanks to Sandeep Ramgolam for the api.
+          </a>
+        </p>
+      </footer>
     </main>
   );
 }
