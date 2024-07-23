@@ -24,7 +24,7 @@ export default function Home() {
   useEffect(() => {
     const fetchDataFromAPI = async () => {
       try {
-        const response = await fetch("/api");
+        const response = await fetch("/api", { cache: "no-store" });
         if (response) {
           const item = await response.json();
 
