@@ -14,8 +14,6 @@ import RegionSelector from "@/components/regionSelector/RegionSelector";
 import OutageTable from "@/components/outageTable/OutageTable";
 import { Data } from "./types";
 import { useTheme } from "next-themes";
-import Image from "next/image";
-import { Bar } from "recharts";
 import { BarchartLabel } from "@/components/barchartLabel/BarChartLabel";
 
 export default function Home() {
@@ -23,7 +21,7 @@ export default function Home() {
     today: [],
     future: [],
   });
-  const [selectedRegion, setSelectedRegion] = useState<string>("");
+  const [selectedRegion, setSelectedRegion] = useState<string>("all");
   const [loading, setLoading] = useState<boolean>(true);
   const { setTheme } = useTheme();
 
