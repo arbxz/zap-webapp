@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { District } from "@/constants";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { OutageItem } from "@/app/types";
 
 interface RegionSelectorProps {
@@ -55,7 +55,7 @@ const RegionSelector = ({
       <div className="flex flex-col gap-4 items-center justify-start p-6 shadow shadow-primary-foreground rounded-lg">
         <div
           className={`p-4 rounded-full border-2 border-green-600 dark:border-red-600  animate-pulse transition-colors  ${
-            locality.length > 0 && "text-white bg-green-600 "
+            locality.length > 0 && "text-white bg-green-600 dark:bg-red-600"
           }`}>
           <Zap width={36} height={36} />
         </div>
