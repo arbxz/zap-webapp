@@ -1,20 +1,15 @@
 "use client";
 
 import * as React from "react";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 import { useEffect, useState } from "react";
-import { Moon, Sun, Zap } from "lucide-react";
 import RegionSelector from "@/components/regionSelector/RegionSelector";
 import OutageTable from "@/components/outageTable/OutageTable";
 import { Data } from "./types";
-import { useTheme } from "next-themes";
 import { BarchartLabel } from "@/components/barchartLabel/BarChartLabel";
+import Navigation from "@/components/navigation/Navigation";
+import LocationMonitor from "@/components/locationMonitor/LocationMonitor";
+import Footer from "@/components/footer/Footer";
 
 export default function Home() {
   const [outageData, setOutageData] = useState<Data>({
@@ -23,7 +18,6 @@ export default function Home() {
   });
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
   const [loading, setLoading] = useState<boolean>(true);
-  const { setTheme } = useTheme();
 
   useEffect(() => {
     const fetchDataFromAPI = async () => {
@@ -48,52 +42,28 @@ export default function Home() {
 
   return (
     <main className="min-h-screen p-8 lg:p-12 relative">
-      <nav className="flex justify-start items-center gap-8 w-full mb-8">
-        <div className="animate-pulse bg-green-600 dark:bg-red-600 text-white flex gap-4 items-center font-semibold px-4 py-2 rounded-full border-2 shadow">
-          <Zap /> zap
-        </div>
+   
+      <Navigation />
 
-        <div className="ml-auto">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
-                <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                <span className="sr-only">Toggle theme</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setTheme("light")}>
-                Light
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("dark")}>
-                Dark
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("system")}>
-                System
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </nav>
-      <div className="grid md:grid-flow-col md:grid-cols-[1fr_auto] gap-8 items-start justify-start mb-8">
-        <div className="flex flex-col justify-center items-center mb-4 gap-4 h-full md:py-16 p-4 md:px-8 shadow shadow-slate-200 dark:shadow-primary-foreground rounded-xl overflow-hidden">
-          <div
-            className={`p-4 rounded-full border-2 border-green-600 dark:border-red-600  animate-pulse transition-colors 
-          }`}>
-            <Zap width={36} height={36} />
-          </div>
-          <h1 className="text-4xl font-semibold text-green-600 dark:text-red-600">
-            ZAP <span className="animate-ping text-2xl">|</span>
-          </h1>
-          <h2 className="text-xl">
+      <div className="grid md:grid-cols-3 grid-cols-2 gap-8 items-start justify-start">
+        <div className="flex flex-col justify-center items-center mb-4 gap-4 h-full bg-blue-500 p-4 md:p-8 rounded-xl overflow-hidden">
+
+          <h2 className="text-xl text-white">
             Monitor power outages
             <br /> in Mauritius.
           </h2>
         </div>
 
-        <BarchartLabel data={outageData} />
+        <div className="flex flex-col justify-center items-center mb-4 gap-4 h-full  bg-blue-500 p-4 md:p-8 rounded-xl overflow-hidden">
+          <p className="text-5xl text-white">15:00</p>
+        </div>
+
+        {/* <BarchartLabel data={outageData} /> */}
       </div>
+
+      <LocationMonitor outageData={outageData} />
+    
+      
       <div className="flex flex-wrap lg:flex-nowrap gap-8 w-full">
         <RegionSelector
           selectedRegion={selectedRegion}
@@ -107,20 +77,7 @@ export default function Home() {
         />
       </div>
 
-      <footer className="border-t-2 border-primary-foreground py-16">
-        <p className="text-center text-sm">
-          Made with ❤️ by{" "}
-          <a href="https://arbxz.dev" target="_blank">
-            arbxz.dev
-          </a>
-        </p>
-
-        <p className="text-center text-sm">
-          <a href="https://github.com/MrSunshyne" target="_blank">
-            Special thanks to Sandeep Ramgolam for the api.
-          </a>
-        </p>
-      </footer>
+<Footer />
     </main>
   );
 }

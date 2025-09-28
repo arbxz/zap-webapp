@@ -1,6 +1,6 @@
 "use client";
 
-import { Zap } from "lucide-react";
+import { MapIcon } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/select";
 import { District } from "@/constants";
 import { Dispatch, SetStateAction, useState } from "react";
-import { OutageItem } from "@/app/types";
 
 interface RegionSelectorProps {
   setSelectedRegion: Dispatch<SetStateAction<string>>;
@@ -21,44 +20,25 @@ interface RegionSelectorProps {
 const RegionSelector = ({
   setSelectedRegion,
   data,
-  selectedRegion,
 }: RegionSelectorProps) => {
-  const [locality, setLocality] = useState([]);
-  const { today } = data;
 
   const getLocalitiesByDistrict = (district: string) => {
     if (district === "all") {
       setSelectedRegion(district);
-      setLocality([]);
       return;
     }
 
-    const results = today
-      .filter(
-        (item: OutageItem) =>
-          item.district.toLowerCase() === district.toLowerCase()
-      )
-      .reduce((uniqueLocalities: string[], item: OutageItem) => {
-        const locality = item.locality;
-        if (!uniqueLocalities.includes(locality)) {
-          uniqueLocalities.push(locality);
-        }
-        return uniqueLocalities;
-      }, []);
-
     setSelectedRegion(district);
-    setLocality(results);
   };
 
   return (
     <div className="w-full lg:w-[300px] mt-12 transition-all duration-300">
-      <div className="flex flex-col gap-4 items-center justify-start p-6 shadow shadow-primary-foreground rounded-lg">
+      <div className="flex flex-col gap-4 items-center justify-start p-6 border border-blue-300 rounded-xl">
         <div
-          className={`p-4 rounded-full border-2 border-green-600 dark:border-red-600  animate-pulse transition-colors  ${
-            locality.length > 0 && "text-white bg-green-600 dark:bg-red-600"
-          }`}>
-          <Zap width={36} height={36} />
+          className="p-4 rounded-full border-2 border-blue-300 animate-pulse transition-colors">
+          <MapIcon width={36} height={36} className="text-blue-500"/>
         </div>
+        <h3 className="text-blue-500 text-xl">Filter by district</h3>
         <Select
           onValueChange={(e) => {
             getLocalitiesByDistrict(e);
@@ -77,25 +57,7 @@ const RegionSelector = ({
             ))}
           </SelectContent>
         </Select>
-        {selectedRegion && locality.length > 0 ? (
-          <div>
-            <p className="text-center text-gray-600 mb-2 ">
-              Expect a powercut in these regions today.
-            </p>
-
-            <ul className="text-center grid gap-2">
-              {locality.map((item) => (
-                <li
-                  key={item}
-                  className="px-4 py-4 border-b-[1px] capitalize text-sm">
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : (
-          <div>No outages</div>
-        )}
+  
       </div>
     </div>
   );

@@ -46,7 +46,7 @@ const Region: { [key: string]: string[] } = {
 const chartConfig = {
   desktop: {
     label: "Desktop",
-    color: "hsl(var(--chart-1))",
+    color: "rgb(217 249 157 / var(--tw-bg-opacity, 1))",
   },
 } satisfies ChartConfig;
 
@@ -59,6 +59,11 @@ export function BarchartLabel({ data }: BarchartLabelProps) {
   const [chartRawData, setChartRawData] = useState<OutageItem[]>(today);
   const [chartData, setChartData] = useState<ChartData[]>([]);
   const date = new Date();
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+  const formattedDate = `${date.getDate()} ${monthNames[date.getMonth()]} ${date.getFullYear()}`;
   const [biggestPowerCut, setBiggestPowerCut] = useState<{
     region: string;
     powercut: number;
@@ -80,7 +85,6 @@ export function BarchartLabel({ data }: BarchartLabelProps) {
       };
     });
 
-    console.log("resukts :>> ", results);
 
     setChartData(results);
   }, [biggestPowerCut, chartRawData]);
@@ -90,10 +94,10 @@ export function BarchartLabel({ data }: BarchartLabelProps) {
   }, [today]);
 
   return (
-    <Card>
+    <Card className="text-stone-500">
       <CardHeader>
-        <CardTitle>Outages Chart</CardTitle>
-        <CardDescription>{date.toString()}</CardDescription>
+        <CardTitle >Outages Chart</CardTitle>
+        <CardDescription>{formattedDate}</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer className="h-fit" config={chartConfig}>
@@ -127,11 +131,7 @@ export function BarchartLabel({ data }: BarchartLabelProps) {
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="flex gap-2 font-medium leading-none">
-          Biggest number of powercuts {biggestPowerCut.powercut} in{" "}
-          {biggestPowerCut.region}
-          <TrendingUp className="h-4 w-4" />
-        </div>
+  
         <div className="leading-none text-muted-foreground">
           Showing total powercuts for all regions.
         </div>
