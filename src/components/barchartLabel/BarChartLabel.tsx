@@ -103,7 +103,7 @@ export function BarchartLabel({ data }: BarchartLabelProps) {
   }, [today]);
 
   return (
-    <Card className="text-stone-500">
+    <Card className="hidden text-stone-900 dark:text-stone-100 lg:block">
       <CardHeader>
         <CardTitle>Outages Chart</CardTitle>
         <CardDescription>{formattedDate}</CardDescription>
@@ -134,7 +134,7 @@ export function BarchartLabel({ data }: BarchartLabelProps) {
                 position="top"
                 offset={12}
                 className="fill-foreground"
-                fontSize={12}
+                fontSize={18}
               />
             </Bar>
           </BarChart>

@@ -10,12 +10,16 @@ import { BarchartLabel } from "@/components/barchartLabel/BarChartLabel";
 import Navigation from "@/components/navigation/Navigation";
 import LocationMonitor from "@/components/locationMonitor/LocationMonitor";
 import Footer from "@/components/footer/Footer";
+import { SunDim } from "lucide-react";
 
 export default function Home() {
+  const [currentTime, setCurrentTime] = useState<Date>(new Date());
+
   const [outageData, setOutageData] = useState<Data>({
     today: [],
     future: [],
   });
+
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -40,23 +44,57 @@ export default function Home() {
     fetchDataFromAPI();
   }, []);
 
+  useEffect(() => {
+    // Only run interval on client
+    if (typeof window === "undefined") return;
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <main className="relative min-h-screen p-8 lg:p-12">
+    <main className="relative mx-auto min-h-screen max-w-7xl px-8 lg:px-12">
       <Navigation />
 
-      <div className="grid grid-cols-2 items-start justify-start gap-8 md:grid-cols-3">
-        <div className="mb-4 flex h-full flex-col items-center justify-center gap-4 overflow-hidden rounded-xl bg-blue-500 p-4 md:p-8">
-          <h2 className="text-xl text-white">
+      <div className="mb-8 flex w-full items-center justify-between text-xl">
+        <div>Overview</div>
+
+        <div className="flex items-baseline gap-4">
+          <div className="uppercase">
+            {currentTime.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: true,
+            })}
+          </div>
+          <div className="text-sm text-stone-500">time</div>
+        </div>
+
+        <div className="capitalize">
+          {currentTime
+            .toLocaleDateString("en-GB", { day: "numeric", month: "long" })
+            .toLowerCase()}
+        </div>
+      </div>
+
+      <div className="mb-4 grid grid-cols-1 items-start justify-start gap-8 lg:grid-cols-3">
+        <div className="flex h-full flex-col items-center justify-center gap-4 overflow-hidden rounded-2xl bg-blue-500 p-4 md:p-8">
+          <h2 className="text-3xl text-white">
             Monitor power outages
-            <br /> in Mauritius.
+            <br /> live in Mauritius.
           </h2>
         </div>
 
-        <div className="mb-4 flex h-full flex-col items-center justify-center gap-4 overflow-hidden rounded-xl bg-blue-500 p-4 md:p-8">
-          <p className="text-5xl text-white">15:00</p>
+        <div className="glass flex h-full flex-col items-center justify-between gap-4 overflow-hidden rounded-2xl border border-blue-500/30 p-4 text-blue-500 shadow-lg shadow-transparent transition-all duration-200 hover:shadow-blue-500/10 dark:hover:shadow-blue-400/20 md:p-6">
+          <SunDim size={64} className="mr-auto" />
+          <p className="text-right text-3xl">
+            Remember you can always go green and become independent from the
+            grid using <b className="text-foreground">solar energy</b>.
+          </p>
         </div>
 
-        {/* <BarchartLabel data={outageData} /> */}
+        <BarchartLabel data={outageData} />
       </div>
 
       <LocationMonitor outageData={outageData} />

@@ -67,3 +67,16 @@
     @apply bg-background text-foreground;
   }
 }
+
+.glass {
+  /* From https://css.glass */
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8.5px);
+  -webkit-backdrop-filter: blur(8.5px);
+}
+
+.dark .glass {
+  background: rgba(32, 32, 32, 0.12);
+  backdrop-filter: blur(8.5px);
+  -webkit-backdrop-filter: blur(8.5px);
+}

@@ -2,7 +2,7 @@ const Footer = () => {
   return (
     <footer className="py-8">
       <p className="text-center text-sm">
-        Made with ❤️ by{" "}
+        Made by{" "}
         <a href="https://arbxz.dev" target="_blank">
           arbxz.dev
         </a>
