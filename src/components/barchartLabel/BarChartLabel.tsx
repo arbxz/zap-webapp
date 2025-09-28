@@ -60,8 +60,18 @@ export function BarchartLabel({ data }: BarchartLabelProps) {
   const [chartData, setChartData] = useState<ChartData[]>([]);
   const date = new Date();
   const monthNames = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
   const formattedDate = `${date.getDate()} ${monthNames[date.getMonth()]} ${date.getFullYear()}`;
   const [biggestPowerCut, setBiggestPowerCut] = useState<{
@@ -72,7 +82,7 @@ export function BarchartLabel({ data }: BarchartLabelProps) {
   useEffect(() => {
     const results = Object.keys(Region).map((region) => {
       const powercuts = chartRawData.filter((item) =>
-        Region[region].includes(item.district)
+        Region[region].includes(item.district),
       ).length;
 
       if (powercuts > biggestPowerCut.powercut) {
@@ -85,7 +95,6 @@ export function BarchartLabel({ data }: BarchartLabelProps) {
       };
     });
 
-
     setChartData(results);
   }, [biggestPowerCut, chartRawData]);
 
@@ -96,7 +105,7 @@ export function BarchartLabel({ data }: BarchartLabelProps) {
   return (
     <Card className="text-stone-500">
       <CardHeader>
-        <CardTitle >Outages Chart</CardTitle>
+        <CardTitle>Outages Chart</CardTitle>
         <CardDescription>{formattedDate}</CardDescription>
       </CardHeader>
       <CardContent>
@@ -106,7 +115,8 @@ export function BarchartLabel({ data }: BarchartLabelProps) {
             data={chartData}
             margin={{
               top: 20,
-            }}>
+            }}
+          >
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="region"
@@ -131,7 +141,6 @@ export function BarchartLabel({ data }: BarchartLabelProps) {
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
-  
         <div className="leading-none text-muted-foreground">
           Showing total powercuts for all regions.
         </div>

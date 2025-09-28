@@ -41,20 +41,18 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen p-8 lg:p-12 relative">
-   
+    <main className="relative min-h-screen p-8 lg:p-12">
       <Navigation />
 
-      <div className="grid md:grid-cols-3 grid-cols-2 gap-8 items-start justify-start">
-        <div className="flex flex-col justify-center items-center mb-4 gap-4 h-full bg-blue-500 p-4 md:p-8 rounded-xl overflow-hidden">
-
+      <div className="grid grid-cols-2 items-start justify-start gap-8 md:grid-cols-3">
+        <div className="mb-4 flex h-full flex-col items-center justify-center gap-4 overflow-hidden rounded-xl bg-blue-500 p-4 md:p-8">
           <h2 className="text-xl text-white">
             Monitor power outages
             <br /> in Mauritius.
           </h2>
         </div>
 
-        <div className="flex flex-col justify-center items-center mb-4 gap-4 h-full  bg-blue-500 p-4 md:p-8 rounded-xl overflow-hidden">
+        <div className="mb-4 flex h-full flex-col items-center justify-center gap-4 overflow-hidden rounded-xl bg-blue-500 p-4 md:p-8">
           <p className="text-5xl text-white">15:00</p>
         </div>
 
@@ -62,9 +60,8 @@ export default function Home() {
       </div>
 
       <LocationMonitor outageData={outageData} />
-    
-      
-      <div className="flex flex-wrap lg:flex-nowrap gap-8 w-full">
+
+      <div className="flex w-full flex-wrap gap-8 lg:flex-nowrap">
         <RegionSelector
           selectedRegion={selectedRegion}
           setSelectedRegion={setSelectedRegion}
@@ -77,7 +74,7 @@ export default function Home() {
         />
       </div>
 
-<Footer />
+      <Footer />
     </main>
   );
 }

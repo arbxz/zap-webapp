@@ -29,10 +29,10 @@ const OutageTable = ({ data, selectedRegion }: OutageTableProps) => {
       setFutureData(data.future);
     } else {
       const todayData = data.today.filter(
-        (item: OutageItem) => item.district === selectedRegion
+        (item: OutageItem) => item.district === selectedRegion,
       );
       const futureData = data.future.filter(
-        (item: OutageItem) => item.district === selectedRegion
+        (item: OutageItem) => item.district === selectedRegion,
       );
 
       setTodayData(todayData);
@@ -41,7 +41,7 @@ const OutageTable = ({ data, selectedRegion }: OutageTableProps) => {
   }, [selectedRegion, data]);
 
   return (
-    <Tabs defaultValue="account" className="flex flex-col w-full">
+    <Tabs defaultValue="account" className="flex w-full flex-col">
       <TabsList className="mx-auto">
         <TabsTrigger value="account">Today</TabsTrigger>
         <TabsTrigger value="password">Future outages</TabsTrigger>
