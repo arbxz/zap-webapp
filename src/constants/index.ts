@@ -12,7 +12,7 @@ export const District = [
   "rodrigues",
 ];
 
-export const Region: any = {
+export const Region: Record<string, string[]> = {
   north: ["pamplemousses", "rivieredurempart", "portlouis"],
   east: ["flacq", "grandport"],
   west: ["blackriver"],
