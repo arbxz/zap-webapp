@@ -1,6 +1,5 @@
 "use client";
 
-import { TrendingUp } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, LabelList, XAxis } from "recharts";
 
 import {
@@ -25,15 +24,6 @@ interface ChartData {
   powercuts: number;
 }
 
-// const chartData: ChartData[] = [
-//   { month: "January", desktop: 186 },
-//   { month: "February", desktop: 305 },
-//   { month: "March", desktop: 237 },
-//   { month: "April", desktop: 73 },
-//   { month: "May", desktop: 209 },
-//   { month: "June", desktop: 214 },
-// ];
-
 const Region: { [key: string]: string[] } = {
   north: ["pamplemousses", "rivieredurempart", "portlouis"],
   east: ["flacq", "grandport"],
@@ -46,7 +36,7 @@ const Region: { [key: string]: string[] } = {
 const chartConfig = {
   desktop: {
     label: "Desktop",
-    color: "hsl(var(--chart-1))",
+    color: "rgb(253 224 71 / var(--tw-bg-opacity, 1))",
   },
 } satisfies ChartConfig;
 
@@ -59,6 +49,21 @@ export function BarchartLabel({ data }: BarchartLabelProps) {
   const [chartRawData, setChartRawData] = useState<OutageItem[]>(today);
   const [chartData, setChartData] = useState<ChartData[]>([]);
   const date = new Date();
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  const formattedDate = `${date.getDate()} ${monthNames[date.getMonth()]} ${date.getFullYear()}`;
   const [biggestPowerCut, setBiggestPowerCut] = useState<{
     region: string;
     powercut: number;
@@ -67,7 +72,7 @@ export function BarchartLabel({ data }: BarchartLabelProps) {
   useEffect(() => {
     const results = Object.keys(Region).map((region) => {
       const powercuts = chartRawData.filter((item) =>
-        Region[region].includes(item.district)
+        Region[region].includes(item.district),
       ).length;
 
       if (powercuts > biggestPowerCut.powercut) {
@@ -80,8 +85,6 @@ export function BarchartLabel({ data }: BarchartLabelProps) {
       };
     });
 
-    console.log("resukts :>> ", results);
-
     setChartData(results);
   }, [biggestPowerCut, chartRawData]);
 
@@ -90,10 +93,10 @@ export function BarchartLabel({ data }: BarchartLabelProps) {
   }, [today]);
 
   return (
-    <Card>
+    <Card className="hidden text-stone-900 dark:text-stone-100 lg:block">
       <CardHeader>
         <CardTitle>Outages Chart</CardTitle>
-        <CardDescription>{date.toString()}</CardDescription>
+        <CardDescription>{formattedDate}</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer className="h-fit" config={chartConfig}>
@@ -102,7 +105,8 @@ export function BarchartLabel({ data }: BarchartLabelProps) {
             data={chartData}
             margin={{
               top: 20,
-            }}>
+            }}
+          >
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="region"
@@ -120,18 +124,13 @@ export function BarchartLabel({ data }: BarchartLabelProps) {
                 position="top"
                 offset={12}
                 className="fill-foreground"
-                fontSize={12}
+                fontSize={18}
               />
             </Bar>
           </BarChart>
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="flex gap-2 font-medium leading-none">
-          Biggest number of powercuts {biggestPowerCut.powercut} in{" "}
-          {biggestPowerCut.region}
-          <TrendingUp className="h-4 w-4" />
-        </div>
         <div className="leading-none text-muted-foreground">
           Showing total powercuts for all regions.
         </div>

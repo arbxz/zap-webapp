@@ -12,7 +12,8 @@ export const columns: ColumnDef<OutageItem>[] = [
       return (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
           Date
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
@@ -25,7 +26,8 @@ export const columns: ColumnDef<OutageItem>[] = [
       return (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
           Locality
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
@@ -44,9 +46,9 @@ export const columns: ColumnDef<OutageItem>[] = [
 
       return Date.now() > Date.parse(data.from.toString()) &&
         Date.now() < Date.parse(data.to.toString()) ? (
-        <BatteryWarning className="text-red-600" width={16} height={16} />
+        <BatteryWarning className="text-yellow-500" width={16} height={16} />
       ) : (
-        <BatteryCharging className="text-green-600" width={16} height={16} />
+        <BatteryCharging className="text-yellow-400" width={16} height={16} />
       );
     },
   },

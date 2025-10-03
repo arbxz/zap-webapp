@@ -24,7 +24,7 @@ const TableSkeleton = () => {
           <Skeleton className="h-[20px] rounded-full" />
         </TableCell>
         <TableCell className="text-right">
-          <Skeleton className="w-[30px] h-[20px] rounded-full" />
+          <Skeleton className="h-[20px] w-[30px] rounded-full" />
         </TableCell>
       </TableRow>
     </>

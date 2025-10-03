@@ -1,29 +1,27 @@
 "use client";
 
 import * as React from "react";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 import { useEffect, useState } from "react";
-import { Moon, Sun, Zap } from "lucide-react";
 import RegionSelector from "@/components/regionSelector/RegionSelector";
 import OutageTable from "@/components/outageTable/OutageTable";
 import { Data } from "./types";
-import { useTheme } from "next-themes";
 import { BarchartLabel } from "@/components/barchartLabel/BarChartLabel";
+import Navigation from "@/components/navigation/Navigation";
+import LocationMonitor from "@/components/locationMonitor/LocationMonitor";
+import Footer from "@/components/footer/Footer";
+import { SunDim } from "lucide-react";
 
 export default function Home() {
+  const [currentTime, setCurrentTime] = useState<Date>(new Date());
+
   const [outageData, setOutageData] = useState<Data>({
     today: [],
     future: [],
   });
+
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
   const [loading, setLoading] = useState<boolean>(true);
-  const { setTheme } = useTheme();
 
   useEffect(() => {
     const fetchDataFromAPI = async () => {
@@ -46,81 +44,86 @@ export default function Home() {
     fetchDataFromAPI();
   }, []);
 
+  useEffect(() => {
+    // Only run interval on client
+    if (typeof window === "undefined") return;
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <main className="min-h-screen p-8 lg:p-12 relative">
-      <nav className="flex justify-start items-center gap-8 w-full mb-8">
-        <div className="animate-pulse bg-green-600 dark:bg-red-600 text-white flex gap-4 items-center font-semibold px-4 py-2 rounded-full border-2 shadow">
-          <Zap /> zap
-        </div>
+    <main className="relative mx-auto min-h-screen max-w-7xl overflow-hidden px-8 lg:px-12">
+      <div className="background-grid absolute left-0 top-0 h-full w-full"></div>
 
-        <div className="ml-auto">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
-                <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                <span className="sr-only">Toggle theme</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setTheme("light")}>
-                Light
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("dark")}>
-                Dark
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("system")}>
-                System
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </nav>
-      <div className="grid md:grid-flow-col md:grid-cols-[1fr_auto] gap-8 items-start justify-start mb-8">
-        <div className="flex flex-col justify-center items-center mb-4 gap-4 h-full md:py-16 p-4 md:px-8 shadow shadow-slate-200 dark:shadow-primary-foreground rounded-xl overflow-hidden">
-          <div
-            className={`p-4 rounded-full border-2 border-green-600 dark:border-red-600  animate-pulse transition-colors 
-          }`}>
-            <Zap width={36} height={36} />
+      <div className="relative z-50">
+        <Navigation />
+
+        <div className="mb-8 flex w-full items-center justify-between text-xl">
+          <div>Overview</div>
+
+          <div className="flex items-baseline gap-4">
+            <div className="uppercase">
+              {currentTime.toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+              })}
+            </div>
+            <div className="text-sm text-stone-500">time</div>
           </div>
-          <h1 className="text-4xl font-semibold text-green-600 dark:text-red-600">
-            ZAP <span className="animate-ping text-2xl">|</span>
-          </h1>
-          <h2 className="text-xl">
-            Monitor power outages
-            <br /> in Mauritius.
-          </h2>
+
+          <div className="capitalize">
+            {currentTime
+              .toLocaleDateString("en-GB", { day: "numeric", month: "long" })
+              .toLowerCase()}
+          </div>
         </div>
 
-        <BarchartLabel data={outageData} />
-      </div>
-      <div className="flex flex-wrap lg:flex-nowrap gap-8 w-full">
-        <RegionSelector
-          selectedRegion={selectedRegion}
-          setSelectedRegion={setSelectedRegion}
-          data={outageData}
-        />
-        <OutageTable
-          selectedRegion={selectedRegion}
-          isLoading={loading}
-          data={outageData || []}
-        />
-      </div>
+        <div className="mb-4 grid grid-cols-1 items-start justify-start gap-8 lg:grid-cols-3">
+          <div className="flex h-full flex-col items-center justify-center gap-4 overflow-hidden rounded-2xl bg-yellow-300 p-4 md:p-8">
+            <h2 className="text-3xl font-bold text-black">
+              Monitor power outages
+              <br /> live in Mauritius.
+            </h2>
+          </div>
 
-      <footer className="border-t-2 border-primary-foreground py-16">
-        <p className="text-center text-sm">
-          Made with ❤️ by{" "}
-          <a href="https://arbxz.dev" target="_blank">
-            arbxz.dev
-          </a>
-        </p>
+          <div className="glass flex h-full flex-col items-center justify-between gap-4 overflow-hidden rounded-2xl border border-yellow-500/30 p-4 text-foreground shadow-lg shadow-transparent transition-all duration-200 hover:shadow-yellow-500/10 dark:hover:shadow-yellow-400/20 md:p-6">
+            <SunDim size={64} className="mr-auto text-yellow-300" />
+            <p className="text-right text-3xl">
+              Remember you can always go green and become independent from the
+              grid using{" "}
+              <b className="text-yellow-500 dark:text-yellow-300">
+                solar energy
+              </b>
+              .
+            </p>
+          </div>
 
-        <p className="text-center text-sm">
-          <a href="https://github.com/MrSunshyne" target="_blank">
-            Special thanks to Sandeep Ramgolam for the api.
-          </a>
-        </p>
-      </footer>
+          <BarchartLabel data={outageData} />
+        </div>
+
+        <LocationMonitor outageData={outageData} />
+
+        <section
+          id="outage_list"
+          className="flex w-full flex-wrap gap-8 lg:flex-nowrap"
+        >
+          <RegionSelector
+            selectedRegion={selectedRegion}
+            setSelectedRegion={setSelectedRegion}
+            data={outageData}
+          />
+          <OutageTable
+            selectedRegion={selectedRegion}
+            isLoading={loading}
+            data={outageData || []}
+          />
+        </section>
+
+        <Footer />
+      </div>
     </main>
   );
 }
