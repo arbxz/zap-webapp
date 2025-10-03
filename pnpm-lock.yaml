@@ -29,6 +29,12 @@ importers:
       '@tanstack/react-table':
         specifier: ^8.21.3
         version: 8.21.3(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      add-to-calendar-button:
+        specifier: ^2.12.4
+        version: 2.12.4
+      add-to-calendar-button-react:
+        specifier: ^2.12.4
+        version: 2.12.4(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -986,6 +992,17 @@ packages:
     resolution: {integrity: sha512-NZyJarBfL7nWwIq+FDL6Zp/yHEhePMNnnJ0y3qfieCrmNvYct8uvtiV41UvlSe6apAfk0fY1FbWx+NwfmpvtTg==}
     engines: {node: '>=0.4.0'}
     hasBin: true
+
+  add-to-calendar-button-react@2.12.4:
+    resolution: {integrity: sha512-C6vZarRi3xNMqM9QTR+mJjoeUrqq0alke4mFIS6pDObtLzxFvD78IUlMeANgvfOQ8Uz3oBt9Ao5uc2ZdD7ToFQ==}
+    engines: {node: '>=18.17.0', npm: '>=9.6.7'}
+    peerDependencies:
+      react: '>=18.0.0'
+      react-dom: '>=18.0.0'
+
+  add-to-calendar-button@2.12.4:
+    resolution: {integrity: sha512-hJd9RnbIkh5dqCHO3FDbx4JNZlWM7MRx6wtl0L1OwM6V54Pq39YhfSZIUo1GF77DgaPc5WDKppyjTWtRXA7ZKw==}
+    engines: {node: '>=18.17.0', npm: '>=9.6.7'}
 
   ajv@6.12.6:
     resolution: {integrity: sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g==}
@@ -2413,6 +2430,10 @@ packages:
   thenify@3.3.1:
     resolution: {integrity: sha512-RVZSIV5IG10Hk3enotrhvz0T9em6cyHBLkH/YAZuKqd8hRkKhSfCGIcP2KUY0EPxndzANBmNllzWPwak+bheSw==}
 
+  timezones-ical-library@1.10.0:
+    resolution: {integrity: sha512-aSwylC0FyyxMqMjkuaYz56HBhhooYabGT74CbTuY1uOeIcBXSQTXf+u/mTR0MWJFPQDe21REjex+4wt0OdFDpA==}
+    engines: {node: '>=18.17.0', npm: '>=9.6.7'}
+
   tiny-invariant@1.3.3:
     resolution: {integrity: sha512-+FbBPE1o9QAYvviau/qC5SE3caw21q3xkvWKBtja5vgqOWIHHJ3ioaq1VPfn/Szqctz2bU/oYeKd9/z5BL+PVg==}
 
@@ -3361,6 +3382,16 @@ snapshots:
       acorn: 8.15.0
 
   acorn@8.15.0: {}
+
+  add-to-calendar-button-react@2.12.4(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
+    dependencies:
+      add-to-calendar-button: 2.12.4
+      react: 19.1.1
+      react-dom: 19.1.1(react@19.1.1)
+
+  add-to-calendar-button@2.12.4:
+    dependencies:
+      timezones-ical-library: 1.10.0
 
   ajv@6.12.6:
     dependencies:
@@ -4972,6 +5003,8 @@ snapshots:
   thenify@3.3.1:
     dependencies:
       any-promise: 1.3.0
+
+  timezones-ical-library@1.10.0: {}
 
   tiny-invariant@1.3.3: {}
 

@@ -32,7 +32,7 @@ const Navigation = () => {
             <Button
               rounded
               size="icon"
-              className="text-yellow-300 dark:text-yellow-500"
+              className="text-yellow-300 dark:bg-yellow-300 dark:text-black"
             >
               <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
               <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />

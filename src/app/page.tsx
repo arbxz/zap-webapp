@@ -54,7 +54,7 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="relative mx-auto min-h-screen max-w-7xl px-8 lg:px-12">
+    <main className="relative mx-auto min-h-screen max-w-7xl overflow-hidden px-8 lg:px-12">
       <div className="background-grid absolute left-0 top-0 h-full w-full"></div>
 
       <div className="relative z-50">
