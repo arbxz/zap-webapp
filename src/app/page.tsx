@@ -55,64 +55,75 @@ export default function Home() {
 
   return (
     <main className="relative mx-auto min-h-screen max-w-7xl px-8 lg:px-12">
-      <Navigation />
+      <div className="background-grid absolute left-0 top-0 h-full w-full"></div>
 
-      <div className="mb-8 flex w-full items-center justify-between text-xl">
-        <div>Overview</div>
+      <div className="relative z-50">
+        <Navigation />
 
-        <div className="flex items-baseline gap-4">
-          <div className="uppercase">
-            {currentTime.toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: true,
-            })}
+        <div className="mb-8 flex w-full items-center justify-between text-xl">
+          <div>Overview</div>
+
+          <div className="flex items-baseline gap-4">
+            <div className="uppercase">
+              {currentTime.toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+              })}
+            </div>
+            <div className="text-sm text-stone-500">time</div>
           </div>
-          <div className="text-sm text-stone-500">time</div>
+
+          <div className="capitalize">
+            {currentTime
+              .toLocaleDateString("en-GB", { day: "numeric", month: "long" })
+              .toLowerCase()}
+          </div>
         </div>
 
-        <div className="capitalize">
-          {currentTime
-            .toLocaleDateString("en-GB", { day: "numeric", month: "long" })
-            .toLowerCase()}
+        <div className="mb-4 grid grid-cols-1 items-start justify-start gap-8 lg:grid-cols-3">
+          <div className="flex h-full flex-col items-center justify-center gap-4 overflow-hidden rounded-2xl bg-yellow-300 p-4 md:p-8">
+            <h2 className="text-3xl font-bold text-black">
+              Monitor power outages
+              <br /> live in Mauritius.
+            </h2>
+          </div>
+
+          <div className="glass flex h-full flex-col items-center justify-between gap-4 overflow-hidden rounded-2xl border border-yellow-500/30 p-4 text-foreground shadow-lg shadow-transparent transition-all duration-200 hover:shadow-yellow-500/10 dark:hover:shadow-yellow-400/20 md:p-6">
+            <SunDim size={64} className="mr-auto text-yellow-300" />
+            <p className="text-right text-3xl">
+              Remember you can always go green and become independent from the
+              grid using{" "}
+              <b className="text-yellow-500 dark:text-yellow-300">
+                solar energy
+              </b>
+              .
+            </p>
+          </div>
+
+          <BarchartLabel data={outageData} />
         </div>
+
+        <LocationMonitor outageData={outageData} />
+
+        <section
+          id="outage_list"
+          className="flex w-full flex-wrap gap-8 lg:flex-nowrap"
+        >
+          <RegionSelector
+            selectedRegion={selectedRegion}
+            setSelectedRegion={setSelectedRegion}
+            data={outageData}
+          />
+          <OutageTable
+            selectedRegion={selectedRegion}
+            isLoading={loading}
+            data={outageData || []}
+          />
+        </section>
+
+        <Footer />
       </div>
-
-      <div className="mb-4 grid grid-cols-1 items-start justify-start gap-8 lg:grid-cols-3">
-        <div className="flex h-full flex-col items-center justify-center gap-4 overflow-hidden rounded-2xl bg-blue-500 p-4 md:p-8">
-          <h2 className="text-3xl text-white">
-            Monitor power outages
-            <br /> live in Mauritius.
-          </h2>
-        </div>
-
-        <div className="glass flex h-full flex-col items-center justify-between gap-4 overflow-hidden rounded-2xl border border-blue-500/30 p-4 text-blue-500 shadow-lg shadow-transparent transition-all duration-200 hover:shadow-blue-500/10 dark:hover:shadow-blue-400/20 md:p-6">
-          <SunDim size={64} className="mr-auto" />
-          <p className="text-right text-3xl">
-            Remember you can always go green and become independent from the
-            grid using <b className="text-foreground">solar energy</b>.
-          </p>
-        </div>
-
-        <BarchartLabel data={outageData} />
-      </div>
-
-      <LocationMonitor outageData={outageData} />
-
-      <div className="flex w-full flex-wrap gap-8 lg:flex-nowrap">
-        <RegionSelector
-          selectedRegion={selectedRegion}
-          setSelectedRegion={setSelectedRegion}
-          data={outageData}
-        />
-        <OutageTable
-          selectedRegion={selectedRegion}
-          isLoading={loading}
-          data={outageData || []}
-        />
-      </div>
-
-      <Footer />
     </main>
   );
 }

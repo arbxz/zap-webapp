@@ -46,9 +46,9 @@ export const columns: ColumnDef<OutageItem>[] = [
 
       return Date.now() > Date.parse(data.from.toString()) &&
         Date.now() < Date.parse(data.to.toString()) ? (
-        <BatteryWarning className="text-blue-500" width={16} height={16} />
+        <BatteryWarning className="text-yellow-500" width={16} height={16} />
       ) : (
-        <BatteryCharging className="text-blue-400" width={16} height={16} />
+        <BatteryCharging className="text-yellow-400" width={16} height={16} />
       );
     },
   },

@@ -29,11 +29,11 @@ const RegionSelector = ({ setSelectedRegion }: RegionSelectorProps) => {
 
   return (
     <div className="mt-12 w-full transition-all duration-300 lg:w-[375px]">
-      <div className="flex flex-col items-center justify-start gap-4 rounded-2xl border border-blue-500/40 p-6">
+      <div className="flex flex-col items-center justify-start gap-4 rounded-2xl border border-yellow-500/40 p-6">
         <div className="animate-pulse rounded-full p-4 transition-colors">
-          <MapIcon width={36} height={36} className="text-blue-500" />
+          <MapIcon width={36} height={36} className="text-yellow-500" />
         </div>
-        <h3 className="text-xl text-blue-500">Filter by district</h3>
+        <h3 className="text-xl text-foreground">Filter by district</h3>
         <Select
           onValueChange={(e) => {
             getLocalitiesByDistrict(e);

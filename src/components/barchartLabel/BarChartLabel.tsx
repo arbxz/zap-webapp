@@ -24,15 +24,6 @@ interface ChartData {
   powercuts: number;
 }
 
-// const chartData: ChartData[] = [
-//   { month: "January", desktop: 186 },
-//   { month: "February", desktop: 305 },
-//   { month: "March", desktop: 237 },
-//   { month: "April", desktop: 73 },
-//   { month: "May", desktop: 209 },
-//   { month: "June", desktop: 214 },
-// ];
-
 const Region: { [key: string]: string[] } = {
   north: ["pamplemousses", "rivieredurempart", "portlouis"],
   east: ["flacq", "grandport"],
@@ -45,7 +36,7 @@ const Region: { [key: string]: string[] } = {
 const chartConfig = {
   desktop: {
     label: "Desktop",
-    color: "rgb(217 249 157 / var(--tw-bg-opacity, 1))",
+    color: "rgb(253 224 71 / var(--tw-bg-opacity, 1))",
   },
 } satisfies ChartConfig;
 

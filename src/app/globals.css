@@ -29,6 +29,8 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+    --background-secondary: #ffffff;
+    --graph-grid: #d5d5d5;
   }
 
   .dark {
@@ -56,6 +58,8 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+    --background-secondary: hsl(20 14.3% 4.1%);
+    --graph-grid: #292828;
   }
 }
 
@@ -71,12 +75,49 @@
 .glass {
   /* From https://css.glass */
   background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(8.5px);
-  -webkit-backdrop-filter: blur(8.5px);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
 }
 
 .dark .glass {
   background: rgba(32, 32, 32, 0.12);
-  backdrop-filter: blur(8.5px);
-  -webkit-backdrop-filter: blur(8.5px);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+.background-grid {
+  background-image:
+    linear-gradient(
+      var(--graph-grid) 0.5px,
+      transparent 0.5px,
+      transparent calc(100% - 0.5px),
+      var(--graph-grid) calc(100% - 0.5px)
+    ),
+    linear-gradient(
+      90deg,
+      var(--graph-grid) 0.5px,
+      transparent 0.5px,
+      transparent calc(100% - 0.5px),
+      var(--graph-grid) calc(100% - 0.5px)
+    );
+  background-size: 100px 100px;
+  background-position: center center;
+}
+
+.background-grid::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(
+    circle at 50% 50%,
+    rgba(0, 0, 0, 0) 35%,
+    var(--background-secondary) 80%
+  );
+  background-size: 100% 100%;
+  background-position: center center;
+  z-index: 1;
 }
