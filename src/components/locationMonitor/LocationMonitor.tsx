@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Data } from "@/app/types";
-import { AddToCalendarButton } from "add-to-calendar-button-react";
+// import { AddToCalendarButton } from "add-to-calendar-button-react";
 
 interface ILocationMonitorProps {
   outageData: Data;
@@ -40,11 +40,9 @@ const LocationMonitor = ({ outageData }: ILocationMonitorProps) => {
   const getLocalitiesByDistrict = (district: string) => {
     if (!district) return [];
     const key = district.toLowerCase().replace(/\s+/g, "");
-    // Type assertion to fix TS error
     return (localitiesData.districts as Record<string, string[]>)[key] || [];
   };
 
-  // Get unique districts from localitiesData
   const getDistricts = () => {
     return Object.keys(localitiesData.districts).map(
       (key: string) => key.charAt(0).toUpperCase() + key.slice(1),
@@ -62,6 +60,7 @@ const LocationMonitor = ({ outageData }: ILocationMonitorProps) => {
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
     if (selectedDistrict && selectedLocality && locationType) {
       const updated = [
         ...savedLocations,
@@ -190,7 +189,7 @@ const LocationMonitor = ({ outageData }: ILocationMonitorProps) => {
                               })}
                             </p>
 
-                            <AddToCalendarButton
+                            {/* <AddToCalendarButton
                               name={`CEB Power Outage - ${location.locality}, ${location.district}`}
                               options="['Apple','Google','iCal','Microsoft365','Outlook.com','Yahoo']"
                               startDate={
@@ -215,13 +214,13 @@ const LocationMonitor = ({ outageData }: ILocationMonitorProps) => {
                                   hour12: false,
                                 },
                               )}
-                              timeZone="America/Los_Angeles"
+                              timeZone="Indian/Mauritius"
                               iCalFileName="Outage-Notification"
                               buttonStyle="text"
                               size="4"
                               hideCheckmark
                               hideBackground
-                            />
+                            /> */}
                           </li>
                         ))}
                       {/* If no outages */}
