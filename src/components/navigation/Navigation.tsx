@@ -30,7 +30,6 @@ const Navigation = () => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
-              rounded
               size="icon"
               className="text-yellow-300 dark:bg-yellow-300 dark:text-black"
             >
