@@ -93,13 +93,13 @@ export function BarchartLabel({ data }: BarchartLabelProps) {
   }, [today]);
 
   return (
-    <Card className="hidden text-stone-900 dark:text-stone-100 lg:block">
+    <Card className="hidden h-full text-stone-900 dark:text-stone-100 lg:block">
       <CardHeader>
         <CardTitle>Outages Chart</CardTitle>
         <CardDescription>{formattedDate}</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer className="h-fit" config={chartConfig}>
+        <ChartContainer className="h-full" config={chartConfig}>
           <BarChart
             accessibilityLayer
             data={chartData}
@@ -124,7 +124,7 @@ export function BarchartLabel({ data }: BarchartLabelProps) {
                 position="top"
                 offset={12}
                 className="fill-foreground"
-                fontSize={18}
+                fontSize={14}
               />
             </Bar>
           </BarChart>
