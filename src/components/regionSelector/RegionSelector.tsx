@@ -29,7 +29,7 @@ const RegionSelector = ({ setSelectedRegion }: RegionSelectorProps) => {
 
   return (
     <div className="mt-12 w-full transition-all duration-300 lg:w-[375px]">
-      <div className="flex flex-col items-center justify-start gap-4 rounded-2xl border border-yellow-500/40 p-6">
+      <div className="glass flex flex-col items-center justify-start gap-4 rounded-2xl border border-yellow-500/40 p-6">
         <div className="animate-pulse rounded-full p-4 transition-colors">
           <MapIcon width={36} height={36} className="text-yellow-500" />
         </div>
