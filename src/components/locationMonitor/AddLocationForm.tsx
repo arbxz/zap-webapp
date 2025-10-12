@@ -22,18 +22,6 @@ import {
 } from "@/components/ui/select";
 import { useState } from "react";
 
-// const setSavedLocations: Dispatch<SetStateAction<{
-//     district: string;
-//     locality: string;
-//     type: string;
-// }[]>>
-
-// const savedLocations: {
-//     district: string;
-//     locality: string;
-//     type: string;
-// }[]
-
 interface IAddLocationFormProps {
   savedLocations: {
     district: string;
