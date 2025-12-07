@@ -113,7 +113,7 @@ export function BarchartLabel({ data }: BarchartLabelProps) {
               tickLine={false}
               tickMargin={10}
               axisLine={false}
-              tickFormatter={(value) => value.slice(0, 5)}
+              tickFormatter={(value: string) => String(value).slice(0, 5)}
             />
             <ChartTooltip
               cursor={false}
