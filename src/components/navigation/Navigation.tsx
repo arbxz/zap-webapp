@@ -13,26 +13,23 @@ const Navigation = () => {
 
   return (
     <nav className="mb-12 flex w-full grid-cols-3 items-center justify-start gap-2 border-b pb-4 pt-8 md:grid md:gap-8">
-      <div className="flex items-center gap-4 px-4 font-semibold">
+      <div className="flex items-center gap-4 px-4 font-medium">
         <Zap /> <span className="hidden md:inline-block">zap</span>
       </div>
 
       <div className="w-full text-center">
         <a
           href="#outage_list"
-          className="scroll-smooth rounded-lg bg-yellow-300 px-4 py-2 text-sm font-semibold text-black"
+          className="scroll-smooth rounded-lg bg-yellow-300 px-4 py-2 text-sm font-medium text-stone-900"
         >
-          All outages
+          view all outages.
         </a>
       </div>
 
       <div className="ml-auto">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button
-              size="icon"
-              className="text-yellow-300 dark:bg-yellow-300 dark:text-black"
-            >
+            <Button size="icon" variant={"secondary"}>
               <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
               <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
               <span className="sr-only">Toggle theme</span>

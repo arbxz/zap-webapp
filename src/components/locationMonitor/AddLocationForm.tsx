@@ -93,7 +93,7 @@ const AddLocationForm = ({
   return (
     <Dialog open={showDialog} onOpenChange={setShowDialog}>
       <DialogTrigger>
-        <div className="flex h-full cursor-pointer flex-col items-center justify-center rounded-xl bg-yellow-300 p-8 font-bold text-black transition-transform duration-200 hover:scale-95">
+        <div className="flex h-full cursor-pointer flex-col items-center justify-center rounded-xl bg-yellow-300 p-8 font-medium text-stone-900 transition-transform duration-200 hover:scale-95">
           <Plus size={48} className="mb-2" />
           <p className="text-center text-xl">
             Add a location

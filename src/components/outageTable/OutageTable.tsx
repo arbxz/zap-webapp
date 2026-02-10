@@ -41,7 +41,7 @@ const OutageTable = ({ data, selectedRegion }: OutageTableProps) => {
   }, [selectedRegion, data]);
 
   return (
-    <Tabs defaultValue="account" className="glass flex w-full flex-col">
+    <Tabs defaultValue="account" className="flex w-full flex-col">
       <TabsList className="mx-auto">
         <TabsTrigger value="account">Today</TabsTrigger>
         <TabsTrigger value="password">Future outages</TabsTrigger>

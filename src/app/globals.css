@@ -74,15 +74,15 @@
 
 .glass {
   /* From https://css.glass */
+  -webkit-backdrop-filter: blur(7px);
   background: rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(7px);
-  -webkit-backdrop-filter: blur(7px);
 }
 
 .dark .glass {
+  -webkit-backdrop-filter: blur(7px);
   background: rgba(32, 32, 32, 0.12);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(7px);
 }
 
 .background-grid {

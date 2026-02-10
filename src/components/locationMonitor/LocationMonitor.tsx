@@ -18,7 +18,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import AddLocationForm from "./AddLocationForm";
-// import { AddToCalendarButton } from "add-to-calendar-button-react";
 
 interface ILocationMonitorProps {
   outageData: Data;
@@ -52,6 +51,7 @@ const LocationMonitor = ({ outageData }: ILocationMonitorProps) => {
       <div className="mb-4 text-muted-foreground">
         Save locations you wish to monitor like your home or office.
       </div>
+
       <div className="grid w-full grid-cols-1 gap-8 py-4 md:grid-cols-2 lg:grid-cols-3">
         {savedLocations.map(
           (
@@ -65,16 +65,14 @@ const LocationMonitor = ({ outageData }: ILocationMonitorProps) => {
             return (
               <div
                 key={index}
-                className="glass group flex select-none flex-col overflow-hidden rounded-2xl border border-yellow-200/80 p-4 text-stone-700 transition-all duration-200 hover:bg-yellow-300 dark:border-yellow-100/20 dark:text-stone-200 dark:shadow-cyan-500/10 dark:hover:border-yellow-500/80 dark:hover:text-stone-800 dark:hover:shadow-lg lg:p-8"
+                className="glass group relative flex select-none flex-col overflow-hidden rounded-2xl border border-yellow-200/80 p-4 text-stone-700 transition-all duration-200 hover:bg-yellow-300 dark:border-yellow-100/20 dark:text-stone-200 dark:shadow-cyan-500/10 dark:hover:border-yellow-500/80 dark:hover:text-stone-800 dark:hover:shadow-lg lg:p-8"
               >
                 <div className="mb-4 flex items-center justify-between">
                   <div className="flex items-center gap-4 text-lg">
                     <IconComponent size={24} />
                     <div>
-                      <div className="px-4 font-semibold capitalize">
-                        {label}
-                      </div>
-                      <div className="rounded-full bg-yellow-300 px-4 py-1 text-sm font-semibold text-black">
+                      <div className="px-4 font-medium capitalize">{label}</div>
+                      <div className="rounded-full bg-yellow-300 px-4 py-1 text-sm font-medium text-stone-900">
                         {location.locality}
                       </div>
                     </div>
@@ -89,11 +87,14 @@ const LocationMonitor = ({ outageData }: ILocationMonitorProps) => {
                         new Date(item.to) >= now,
                     );
                     return hasCurrentOutage ? (
-                      <Unplug size={36} className="animate-pulse text-black" />
+                      <Unplug
+                        size={36}
+                        className="animate-pulse text-stone-900"
+                      />
                     ) : (
                       <PlugZap
                         size={36}
-                        className="text-yellow-500 group-hover:text-black"
+                        className="text-yellow-500 group-hover:text-stone-900"
                       />
                     );
                   })()}
@@ -127,7 +128,7 @@ const LocationMonitor = ({ outageData }: ILocationMonitorProps) => {
                         .map((item, idx) => (
                           <li
                             key={"future-" + idx}
-                            className="flex flex-col items-start gap-2 border-b border-yellow-400 pb-2 last:border-0 group-hover:border-black"
+                            className="flex flex-col items-start gap-2 border-b border-yellow-400 pb-2 last:border-0 group-hover:border-stone-800"
                           >
                             <p className="text-md">
                               {new Date(item.from).toLocaleDateString("en", {

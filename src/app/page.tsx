@@ -11,6 +11,8 @@ import Navigation from "@/components/navigation/Navigation";
 import LocationMonitor from "@/components/locationMonitor/LocationMonitor";
 import Footer from "@/components/footer/Footer";
 import { SunDim } from "lucide-react";
+import { useOutageNotifications } from "@/hooks/useOutageNotifications";
+import { NotificationBanner } from "@/components/notificationBanner/NotificationBanner";
 
 export default function Home() {
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
@@ -22,6 +24,9 @@ export default function Home() {
 
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
   const [loading, setLoading] = useState<boolean>(true);
+
+  // Enable outage notifications
+  const { requestNotificationPermission } = useOutageNotifications(outageData);
 
   useEffect(() => {
     const fetchDataFromAPI = async () => {
@@ -60,6 +65,12 @@ export default function Home() {
       <div className="relative z-50">
         <Navigation />
 
+        <div className="py-0">
+          <NotificationBanner
+            onEnableNotifications={requestNotificationPermission}
+          />
+        </div>
+
         <div className="mb-8 flex w-full items-center justify-between text-xl">
           <div>Overview</div>
 
@@ -83,7 +94,7 @@ export default function Home() {
 
         <div className="mb-4 grid grid-cols-1 items-start justify-start gap-8 lg:grid-cols-3">
           <div className="flex h-full flex-col items-center justify-center gap-4 overflow-hidden rounded-2xl bg-yellow-300 p-4 md:p-8">
-            <h2 className="text-3xl font-bold text-black">
+            <h2 className="text-3xl font-normal text-stone-800">
               Monitor power outages
               <br /> live in Mauritius.
             </h2>
