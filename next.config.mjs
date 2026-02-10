@@ -6,10 +6,8 @@ const __dirname = dirname(__filename);
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    turbopack: {
-      root: __dirname,
-    },
+  turbopack: {
+    root: __dirname,
   },
 };
 
