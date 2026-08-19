@@ -1,16 +1,18 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { Data, OutageItem } from "@/app/types";
-
-interface SavedLocation {
-  district: string;
-  locality: string;
-  type: string;
-}
+import {
+  notifyPermissionChanged,
+  readSavedLocations,
+  useNotificationPermission,
+  type SavedLocation,
+} from "@/lib/browserState";
 
 export const useOutageNotifications = (outageData: Data) => {
-  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  // Derived from the browser rather than mirrored into state by a mount effect,
+  // which rendered `false` once before correcting itself.
+  const notificationsEnabled = useNotificationPermission() === "granted";
   const previousOutagesRef = useRef<OutageItem[]>([]);
   const hasRequestedPermission = useRef(false);
 
@@ -22,25 +24,17 @@ export const useOutageNotifications = (outageData: Data) => {
     }
 
     if (Notification.permission === "granted") {
-      setNotificationsEnabled(true);
+      notifyPermissionChanged();
       return true;
     }
 
     if (Notification.permission !== "denied") {
       const permission = await Notification.requestPermission();
-      const granted = permission === "granted";
-      setNotificationsEnabled(granted);
-      return granted;
+      notifyPermissionChanged();
+      return permission === "granted";
     }
 
     return false;
-  };
-
-  // Get saved locations from localStorage
-  const getSavedLocations = (): SavedLocation[] => {
-    if (typeof window === "undefined") return [];
-    const stored = localStorage.getItem("savedLocations");
-    return stored ? JSON.parse(stored) : [];
   };
 
   // Show notification for new outage
@@ -71,7 +65,7 @@ export const useOutageNotifications = (outageData: Data) => {
 
   // Check for new outages in saved locations
   const checkForNewOutages = () => {
-    const savedLocations = getSavedLocations();
+    const savedLocations = readSavedLocations();
     if (savedLocations.length === 0) return;
 
     // Combine today and future outages
@@ -105,7 +99,7 @@ export const useOutageNotifications = (outageData: Data) => {
 
   // Auto-request permission when user saves first location
   useEffect(() => {
-    const savedLocations = getSavedLocations();
+    const savedLocations = readSavedLocations();
     if (
       savedLocations.length > 0 &&
       !hasRequestedPermission.current &&
@@ -113,13 +107,6 @@ export const useOutageNotifications = (outageData: Data) => {
     ) {
       hasRequestedPermission.current = true;
       requestNotificationPermission();
-    }
-  }, []);
-
-  // Check initial permission status
-  useEffect(() => {
-    if (typeof window !== "undefined" && "Notification" in window) {
-      setNotificationsEnabled(Notification.permission === "granted");
     }
   }, []);
 
@@ -134,7 +121,7 @@ export const useOutageNotifications = (outageData: Data) => {
   useEffect(() => {
     if (!notificationsEnabled) return;
 
-    const savedLocations = getSavedLocations();
+    const savedLocations = readSavedLocations();
     if (savedLocations.length === 0) return;
 
     // Initial check with current data
@@ -151,7 +138,7 @@ export const useOutageNotifications = (outageData: Data) => {
           // Check for new outages with fresh data
           const allCurrentOutages = [...freshData.today, ...freshData.future];
           const previousOutages = previousOutagesRef.current;
-          const savedLocs = getSavedLocations();
+          const savedLocs = readSavedLocations();
 
           // Find outages in saved locations
           const relevantOutages = allCurrentOutages.filter((outage) =>

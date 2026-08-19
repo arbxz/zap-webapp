@@ -2,7 +2,7 @@
 
 import { Data, OutageItem } from "@/app/types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { DataTable } from "@/components/dataTable/dataTable";
 import { columns } from "@/components/dataTable/columns";
 
@@ -13,32 +13,29 @@ interface OutageTableProps {
 }
 
 const OutageTable = ({ data, selectedRegion }: OutageTableProps) => {
-  const [todayData, setTodayData] = useState<OutageItem[]>([]);
-  const [futureData, setFutureData] = useState<OutageItem[]>([]);
+  // Both lists are a pure function of `data` and `selectedRegion`, so they are
+  // computed during render. The previous pair of effects rendered the unfiltered
+  // data first and then corrected it, and the second effect fully superseded the
+  // first — every data change ran both.
+  const todayData: OutageItem[] = useMemo(
+    () =>
+      selectedRegion === "all"
+        ? data.today
+        : data.today.filter(
+            (item: OutageItem) => item.district === selectedRegion,
+          ),
+    [data, selectedRegion],
+  );
 
-  useEffect(() => {
-    const { today, future } = data;
-
-    setTodayData(today);
-    setFutureData(future);
-  }, [data]);
-
-  useEffect(() => {
-    if (selectedRegion === "all") {
-      setTodayData(data.today);
-      setFutureData(data.future);
-    } else {
-      const todayData = data.today.filter(
-        (item: OutageItem) => item.district === selectedRegion,
-      );
-      const futureData = data.future.filter(
-        (item: OutageItem) => item.district === selectedRegion,
-      );
-
-      setTodayData(todayData);
-      setFutureData(futureData);
-    }
-  }, [selectedRegion, data]);
+  const futureData: OutageItem[] = useMemo(
+    () =>
+      selectedRegion === "all"
+        ? data.future
+        : data.future.filter(
+            (item: OutageItem) => item.district === selectedRegion,
+          ),
+    [data, selectedRegion],
+  );
 
   return (
     <Tabs defaultValue="account" className="flex w-full flex-col">

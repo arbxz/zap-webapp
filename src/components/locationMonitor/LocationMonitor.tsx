@@ -3,9 +3,8 @@
 import { HomeIcon, PlugZap, Trash2, Unplug } from "lucide-react";
 import { LocationTypeIcons } from "@/constants/savedLocation";
 
-import { useEffect, useState } from "react";
-
 import { Data } from "@/app/types";
+import { useSavedLocations, writeSavedLocations } from "@/lib/browserState";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,26 +23,13 @@ interface ILocationMonitorProps {
 }
 
 const LocationMonitor = ({ outageData }: ILocationMonitorProps) => {
-  const [savedLocations, setSavedLocations] = useState<
-    { district: string; locality: string; type: string }[]
-  >([]);
+  // Subscribed rather than copied into state on mount, so a location added in
+  // AddLocationForm shows up here immediately instead of on the next mount.
+  const savedLocations = useSavedLocations();
 
   const deleteLocation = (index: number) => {
-    const updated = savedLocations.filter((_, i) => i !== index);
-    setSavedLocations(updated);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("savedLocations", JSON.stringify(updated));
-    }
+    writeSavedLocations(savedLocations.filter((_, i) => i !== index));
   };
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("savedLocations");
-      if (stored) {
-        setSavedLocations(JSON.parse(stored));
-      }
-    }
-  }, []);
 
   return (
     <div className="relative z-50 py-8">
@@ -235,10 +221,7 @@ const LocationMonitor = ({ outageData }: ILocationMonitorProps) => {
           },
         )}
 
-        <AddLocationForm
-          savedLocations={savedLocations}
-          setSavedLocations={setSavedLocations}
-        />
+        <AddLocationForm />
       </div>
     </div>
   );
