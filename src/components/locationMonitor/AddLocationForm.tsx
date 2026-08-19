@@ -21,28 +21,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useState } from "react";
+import { readSavedLocations, writeSavedLocations } from "@/lib/browserState";
 
-interface IAddLocationFormProps {
-  savedLocations: {
-    district: string;
-    locality: string;
-    type: string;
-  }[];
-  setSavedLocations: React.Dispatch<
-    React.SetStateAction<
-      {
-        district: string;
-        locality: string;
-        type: string;
-      }[]
-    >
-  >;
-}
-
-const AddLocationForm = ({
-  savedLocations,
-  setSavedLocations,
-}: IAddLocationFormProps) => {
+const AddLocationForm = () => {
   const [localitiesList, setLocalitiesList] = useState<string[]>([]);
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedLocality, setSelectedLocality] = useState("");
@@ -74,18 +55,16 @@ const AddLocationForm = ({
     e.preventDefault();
 
     if (selectedDistrict && selectedLocality && locationType) {
-      const updated = [
-        ...savedLocations,
+      // Read at submit time rather than from a prop, so a delete elsewhere in
+      // the tree cannot be undone by writing back a stale list.
+      writeSavedLocations([
+        ...readSavedLocations(),
         {
           district: selectedDistrict,
           locality: selectedLocality,
           type: locationType,
         },
-      ];
-      setSavedLocations(updated);
-      if (typeof window !== "undefined") {
-        localStorage.setItem("savedLocations", JSON.stringify(updated));
-      }
+      ]);
       formReset();
     }
   };

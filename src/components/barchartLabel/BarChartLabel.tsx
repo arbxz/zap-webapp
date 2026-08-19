@@ -17,7 +17,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { Data, OutageItem } from "@/app/types";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 
 interface ChartData {
   region: string;
@@ -46,8 +46,6 @@ interface BarchartLabelProps {
 
 export function BarchartLabel({ data }: BarchartLabelProps) {
   const { today } = data;
-  const [chartRawData, setChartRawData] = useState<OutageItem[]>(today);
-  const [chartData, setChartData] = useState<ChartData[]>([]);
   const date = new Date();
   const monthNames = [
     "January",
@@ -64,33 +62,20 @@ export function BarchartLabel({ data }: BarchartLabelProps) {
     "December",
   ];
   const formattedDate = `${date.getDate()} ${monthNames[date.getMonth()]} ${date.getFullYear()}`;
-  const [biggestPowerCut, setBiggestPowerCut] = useState<{
-    region: string;
-    powercut: number;
-  }>({ region: "", powercut: 0 });
 
-  useEffect(() => {
-    const results = Object.keys(Region).map((region) => {
-      const powercuts = chartRawData.filter((item) =>
-        Region[region].includes(item.district),
-      ).length;
-
-      if (powercuts > biggestPowerCut.powercut) {
-        setBiggestPowerCut({ region: region, powercut: powercuts });
-      }
-
-      return {
+  // Derived straight from props during render. Mirroring `today` into state and
+  // recomputing in an effect cost an extra render pass per data change, and the
+  // effect listed the very state it set as a dependency.
+  const chartData: ChartData[] = useMemo(
+    () =>
+      Object.keys(Region).map((region) => ({
         region,
-        powercuts,
-      };
-    });
-
-    setChartData(results);
-  }, [biggestPowerCut, chartRawData]);
-
-  useEffect(() => {
-    setChartRawData(today);
-  }, [today]);
+        powercuts: today.filter((item: OutageItem) =>
+          Region[region].includes(item.district),
+        ).length,
+      })),
+    [today],
+  );
 
   return (
     <Card className="hidden h-full text-stone-900 dark:text-stone-100 lg:block">

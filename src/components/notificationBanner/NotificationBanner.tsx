@@ -1,8 +1,12 @@
 "use client";
 
 import { Bell, BellOff, BellRing } from "lucide-react";
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  notifyPermissionChanged,
+  useNotificationPermission,
+  useSavedLocations,
+} from "@/lib/browserState";
 
 interface NotificationBannerProps {
   onEnableNotifications: () => Promise<boolean>;
@@ -11,45 +15,20 @@ interface NotificationBannerProps {
 export const NotificationBanner = ({
   onEnableNotifications,
 }: NotificationBannerProps) => {
-  const [notificationStatus, setNotificationStatus] = useState<
-    "granted" | "denied" | "default" | "unsupported"
-  >("default");
-  const [showBanner, setShowBanner] = useState(false);
+  // Both values are read from the browser through a subscription instead of
+  // being copied into state by a mount effect.
+  const notificationStatus = useNotificationPermission();
+  const savedLocations = useSavedLocations();
 
-  useEffect(() => {
-    if (typeof window === "undefined" || !("Notification" in window)) {
-      setNotificationStatus("unsupported");
-      return;
-    }
-
-    setNotificationStatus(
-      Notification.permission as "granted" | "denied" | "default",
-    );
-
-    // Show banner if user has saved locations but hasn't granted permission
-    const checkSavedLocations = () => {
-      const stored = localStorage.getItem("savedLocations");
-      const locations = stored ? JSON.parse(stored) : [];
-      setShowBanner(
-        locations.length > 0 && Notification.permission === "default",
-      );
-    };
-
-    checkSavedLocations();
-
-    // Listen for storage changes
-    window.addEventListener("storage", checkSavedLocations);
-    return () => window.removeEventListener("storage", checkSavedLocations);
-  }, []);
+  // Prompt only once the user has something worth being notified about.
+  const showBanner =
+    savedLocations.length > 0 && notificationStatus === "default";
 
   const handleEnableNotifications = async () => {
-    const granted = await onEnableNotifications();
-    if (granted) {
-      setNotificationStatus("granted");
-      setShowBanner(false);
-    } else {
-      setNotificationStatus("denied");
-    }
+    await onEnableNotifications();
+    // Notification.permission has no change event; announce it so every
+    // subscriber re-reads the real value rather than a local guess.
+    notifyPermissionChanged();
   };
 
   if (notificationStatus === "unsupported") {
