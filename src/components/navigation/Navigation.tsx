@@ -13,7 +13,7 @@ const Navigation = () => {
 
   return (
     <nav className="mb-12 flex w-full grid-cols-3 items-center justify-start gap-2 border-b pb-4 pt-8 md:grid md:gap-8">
-      <div className="flex items-center gap-4 px-4 font-medium">
+      <div className="flex items-center gap-4 px-4 font-semibold">
         <Zap /> <span className="hidden md:inline-block">zap</span>
       </div>
 
@@ -22,7 +22,7 @@ const Navigation = () => {
           href="#outage_list"
           className="scroll-smooth rounded-lg bg-yellow-300 px-4 py-2 text-sm font-medium text-stone-900"
         >
-          view all outages.
+          All outages
         </a>
       </div>
 
