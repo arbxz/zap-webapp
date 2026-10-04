@@ -4,8 +4,9 @@ import { OutageItem } from "@/app/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, BatteryCharging, BatteryWarning } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Features } from "./features";
 
-export const columns: ColumnDef<OutageItem>[] = [
+export const columns: ColumnDef<Features, OutageItem, unknown>[] = [
   {
     accessorKey: "date",
     header: ({ column }) => {

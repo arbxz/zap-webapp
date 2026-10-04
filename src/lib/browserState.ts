@@ -9,10 +9,7 @@ export interface SavedLocation {
 }
 
 export type NotificationPermissionState =
-  | "granted"
-  | "denied"
-  | "default"
-  | "unsupported";
+  "granted" | "denied" | "default" | "unsupported";
 
 const STORAGE_KEY = "savedLocations";
 const LOCATIONS_EVENT = "zap:saved-locations-changed";
