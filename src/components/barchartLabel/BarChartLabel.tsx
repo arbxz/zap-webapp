@@ -78,7 +78,7 @@ export function BarchartLabel({ data }: BarchartLabelProps) {
   );
 
   return (
-    <Card className="hidden h-full text-stone-900 dark:text-stone-100 lg:block">
+    <Card className="hidden h-full text-stone-900 lg:block dark:text-stone-100">
       <CardHeader>
         <CardTitle>Outages Chart</CardTitle>
         <CardDescription>{formattedDate}</CardDescription>

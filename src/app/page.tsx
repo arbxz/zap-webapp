@@ -60,7 +60,7 @@ export default function Home() {
 
   return (
     <main className="relative mx-auto min-h-screen max-w-7xl overflow-hidden px-8 lg:px-12">
-      <div className="background-grid absolute left-0 top-0 h-full w-full"></div>
+      <div className="background-grid absolute top-0 left-0 h-full w-full"></div>
 
       <div className="relative z-50">
         <Navigation />
@@ -100,7 +100,7 @@ export default function Home() {
             </h2>
           </div>
 
-          <div className="glass flex h-full flex-col items-center justify-between gap-4 overflow-hidden rounded-2xl border border-yellow-500/30 p-4 text-foreground shadow-lg shadow-transparent transition-all duration-200 hover:shadow-yellow-500/10 dark:hover:shadow-yellow-400/20 md:p-6">
+          <div className="glass flex h-full flex-col items-center justify-between gap-4 overflow-hidden rounded-2xl border border-yellow-500/30 p-4 text-foreground shadow-lg shadow-transparent transition-all duration-200 hover:shadow-yellow-500/10 md:p-6 dark:hover:shadow-yellow-400/20">
             <SunDim size={64} className="mr-auto text-yellow-300" />
             <p className="text-right text-3xl">
               Remember you can always go green and become independent from the

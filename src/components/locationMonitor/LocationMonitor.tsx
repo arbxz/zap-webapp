@@ -51,7 +51,7 @@ const LocationMonitor = ({ outageData }: ILocationMonitorProps) => {
             return (
               <div
                 key={index}
-                className="glass group relative flex select-none flex-col overflow-hidden rounded-2xl border border-yellow-200/80 p-4 text-stone-700 transition-all duration-200 hover:bg-yellow-300 dark:border-yellow-100/20 dark:text-stone-200 dark:shadow-cyan-500/10 dark:hover:border-yellow-500/80 dark:hover:text-stone-800 dark:hover:shadow-lg lg:p-8"
+                className="glass group relative flex flex-col overflow-hidden rounded-2xl border border-yellow-200/80 p-4 text-stone-700 transition-all duration-200 select-none hover:bg-yellow-300 lg:p-8 dark:border-yellow-100/20 dark:text-stone-200 dark:shadow-cyan-500/10 dark:hover:border-yellow-500/80 dark:hover:text-stone-800 dark:hover:shadow-lg"
               >
                 <div className="mb-4 flex items-center justify-between">
                   <div className="flex items-center gap-4 text-lg">
@@ -114,7 +114,7 @@ const LocationMonitor = ({ outageData }: ILocationMonitorProps) => {
                         .map((item, idx) => (
                           <li
                             key={"future-" + idx}
-                            className="flex flex-col items-start gap-2 border-b border-yellow-400 pb-2 last:border-0 group-hover:border-stone-800"
+                            className="flex flex-col items-start gap-2 border-b border-yellow-400 pb-2 group-hover:border-stone-800 last:border-0"
                           >
                             <p className="text-md">
                               {new Date(item.from).toLocaleDateString("en", {
@@ -193,7 +193,7 @@ const LocationMonitor = ({ outageData }: ILocationMonitorProps) => {
                   <AlertDialogTrigger asChild>
                     <button
                       name="delete saved location"
-                      className="absolute -bottom-24 right-2 block rounded-full p-2 transition-all duration-200 hover:bg-red-500 hover:text-red-100 group-hover:bottom-2"
+                      className="absolute right-2 -bottom-24 block rounded-full p-2 transition-all duration-200 group-hover:bottom-2 hover:bg-red-500 hover:text-red-100"
                     >
                       <Trash2 size={16} />
                     </button>
