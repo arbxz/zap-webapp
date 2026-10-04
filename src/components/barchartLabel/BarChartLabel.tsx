@@ -17,7 +17,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { Data, OutageItem } from "@/app/types";
-import { useMemo } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 
 interface ChartData {
   region: string;
@@ -44,24 +44,38 @@ interface BarchartLabelProps {
   data: Data;
 }
 
+const monthNames = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+// Today's date is read on the client only. The page is prerendered at build
+// time, so a server-rendered date was the build date and mismatched on
+// hydration on any later day.
+const noSubscription = () => () => {};
+const getToday = () => {
+  const date = new Date();
+  return `${date.getDate()} ${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+};
+const getServerToday = () => "";
+
 export function BarchartLabel({ data }: BarchartLabelProps) {
   const { today } = data;
-  const date = new Date();
-  const monthNames = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-  const formattedDate = `${date.getDate()} ${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+  const formattedDate = useSyncExternalStore(
+    noSubscription,
+    getToday,
+    getServerToday,
+  );
 
   // Derived straight from props during render. Mirroring `today` into state and
   // recomputing in an effect cost an extra render pass per data change, and the

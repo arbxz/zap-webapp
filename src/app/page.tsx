@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import RegionSelector from "@/components/regionSelector/RegionSelector";
 import OutageTable from "@/components/outageTable/OutageTable";
 import { Data } from "./types";
@@ -14,8 +14,23 @@ import { SunDim } from "lucide-react";
 import { useOutageNotifications } from "@/hooks/useOutageNotifications";
 import { NotificationBanner } from "@/components/notificationBanner/NotificationBanner";
 
+// The page is prerendered at build time, so a server-rendered clock showed
+// the build time and never matched the client (React error #418). The server
+// snapshot is null; the client reads the time on hydration and every second.
+const subscribeToClock = (onTick: () => void) => {
+  const id = setInterval(onTick, 1000);
+  return () => clearInterval(id);
+};
+const getClockSnapshot = () => Math.floor(Date.now() / 1000) * 1000;
+const getServerClockSnapshot = () => null;
+
 export default function Home() {
-  const [currentTime, setCurrentTime] = useState<Date>(new Date());
+  const now = useSyncExternalStore(
+    subscribeToClock,
+    getClockSnapshot,
+    getServerClockSnapshot,
+  );
+  const currentTime = now === null ? null : new Date(now);
 
   const [outageData, setOutageData] = useState<Data>({
     today: [],
@@ -49,15 +64,6 @@ export default function Home() {
     fetchDataFromAPI();
   }, []);
 
-  useEffect(() => {
-    // Only run interval on client
-    if (typeof window === "undefined") return;
-    const interval = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <main className="relative mx-auto min-h-screen max-w-7xl overflow-hidden px-8 lg:px-12">
       <div className="background-grid absolute top-0 left-0 h-full w-full"></div>
@@ -76,18 +82,18 @@ export default function Home() {
 
           <div className="flex items-baseline gap-4">
             <div className="uppercase">
-              {currentTime.toLocaleTimeString([], {
+              {currentTime?.toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
                 hour12: true,
-              })}
+              }) ?? "--:--"}
             </div>
             <div className="text-sm text-stone-500">time</div>
           </div>
 
           <div className="capitalize">
             {currentTime
-              .toLocaleDateString("en-GB", { day: "numeric", month: "long" })
+              ?.toLocaleDateString("en-GB", { day: "numeric", month: "long" })
               .toLowerCase()}
           </div>
         </div>
