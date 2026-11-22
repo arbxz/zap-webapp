@@ -1,5 +1,13 @@
-@import 'tailwindcss';
-@import 'tw-animate-css';
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/*
+  Design system: imported from arbxz (~/projects/arbxz/src/themes/styles.css,
+  decisions in design/decisions.md). arbxz is dark-first with a `.light`
+  class; zap uses next-themes with a `.dark` class, so the arbxz light values
+  live on :root here and its dark values on .dark. Contrast figures below are
+  carried over from the arbxz decisions log.
+*/
 
 @custom-variant dark (&:is(.dark *));
 
@@ -15,36 +23,63 @@
 }
 
 @theme inline {
-  --color-border: hsl(var(--border));
-  --color-input: hsl(var(--input));
-  --color-ring: hsl(var(--ring));
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
+  --font-sans: var(--font-source-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
 
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
+  /* arbxz brand tokens */
+  --color-foreground-shade: var(--foreground-shade);
+  --color-background-secondary: var(--background-secondary);
+  --color-arbxz-accent: var(--arbxz-accent);
+  --color-arbxz-accent-text: var(--arbxz-accent-text);
+  --color-accent-2: var(--accent-2);
+  --color-ink: #040202;
+  --color-danger: hsl(15, 85%, 48%);
+  --color-success: #00c6c2;
+  --color-warning: #f9b163;
+  --color-danger-text: var(--danger-text);
+  --color-success-text: var(--success-text);
+  --color-glass: var(--glass-bg);
+  --color-glass-tint: var(--glass-tint);
 
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  /* Retro OS window layer */
+  --color-window: var(--window-bg);
+  --color-window-fg: var(--window-fg);
+  --color-window-border: var(--window-border);
+  --color-window-title: var(--window-title-bg);
+  --color-window-title-fg: var(--window-title-fg);
+  --color-window-ink: var(--window-ink-bg);
+  --color-window-ink-fg: var(--window-ink-fg);
+  --color-window-muted: var(--window-muted);
 
-  --color-destructive: hsl(var(--destructive));
-  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  /* shadcn semantic tokens, derived from the arbxz palette */
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-chart-1: var(--chart-1);
 
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
-
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
-
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
-
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
-
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-sm: calc(var(--radius) - 4px);
+  /* arbxz windows are square. Pills (rounded-full) stay round. */
+  --radius-xs: 0;
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
+  --radius-2xl: 0;
 
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
@@ -67,82 +102,82 @@
   }
 }
 
-/*
-  The default border color has changed to `currentcolor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
-@layer base {
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
-    border-color: var(--color-gray-200, currentcolor);
-  }
-}
-
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 20 14.3% 4.1%;
-    --card: 0 0% 100%;
-    --card-foreground: 20 14.3% 4.1%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 20 14.3% 4.1%;
-    --primary: 24 9.8% 10%;
-    --primary-foreground: 60 9.1% 97.8%;
-    --secondary: 60 4.8% 95.9%;
-    --secondary-foreground: 24 9.8% 10%;
-    --muted: 60 4.8% 95.9%;
-    --muted-foreground: 25 5.3% 44.7%;
-    --accent: 60 4.8% 95.9%;
-    --accent-foreground: 24 9.8% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 60 9.1% 97.8%;
-    --border: 20 5.9% 90%;
-    --input: 20 5.9% 90%;
-    --ring: 20 14.3% 4.1%;
-    --radius: 0.5rem;
-    --chart-1: 142 76% 36%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --background-secondary: #ffffff;
+    --foreground: rgb(4, 2, 2);
+    --foreground-shade: rgba(4, 2, 2, 0.8);
+    --background: #ffffff;
+    --background-secondary: #f5f5f7;
     --graph-grid: #d5d5d5;
+
+    --arbxz-accent: rgb(61, 59, 243);
+    /* Brand violet on white: 6.73:1, so it carries text as is. */
+    --arbxz-accent-text: rgb(61, 59, 243);
+    --accent-2: #def861;
+    /* danger 5.12:1, success 5.1:1 on white (4.7:1 on #f5f5f7). */
+    --danger-text: hsl(15, 85%, 42%);
+    --success-text: hsl(179, 100%, 24%);
+
+    --window-bg: var(--background);
+    --window-fg: var(--foreground);
+    --window-border: #1e1e1e;
+    --window-title-bg: var(--arbxz-accent);
+    --window-title-fg: #ffffff;
+    --window-ink-bg: var(--foreground);
+    --window-ink-fg: var(--background);
+    /* Muted text 7.1:1 on white. */
+    --window-muted: rgba(4, 2, 2, 0.66);
+    --field-dot: rgba(4, 2, 2, 0.14);
+    --glass-bg: rgba(255, 255, 255, 0.8);
+    --glass-tint: rgba(255, 255, 255, 0.25);
+
+    --card: var(--background);
+    --card-foreground: var(--foreground);
+    --popover: var(--background);
+    --popover-foreground: var(--foreground);
+    --primary: var(--arbxz-accent);
+    --primary-foreground: #ffffff;
+    --secondary: var(--background-secondary);
+    --secondary-foreground: var(--foreground);
+    --muted: var(--background-secondary);
+    --muted-foreground: var(--window-muted);
+    --accent: var(--background-secondary);
+    --accent-foreground: var(--foreground);
+    /* The danger fill is 3.9:1 under white text; the text variant passes. */
+    --destructive: var(--danger-text);
+    --destructive-foreground: #ffffff;
+    --border: var(--window-border);
+    --input: var(--window-border);
+    --ring: var(--arbxz-accent-text);
+    --chart-1: var(--arbxz-accent);
   }
 
   .dark {
-    --background: 20 14.3% 4.1%;
-    --foreground: 60 9.1% 97.8%;
-    --card: 20 14.3% 4.1%;
-    --card-foreground: 60 9.1% 97.8%;
-    --popover: 20 14.3% 4.1%;
-    --popover-foreground: 60 9.1% 97.8%;
-    --primary: 60 9.1% 97.8%;
-    --primary-foreground: 24 9.8% 10%;
-    --secondary: 12 6.5% 15.1%;
-    --secondary-foreground: 60 9.1% 97.8%;
-    --muted: 12 6.5% 15.1%;
-    --muted-foreground: 24 5.4% 63.9%;
-    --accent: 12 6.5% 15.1%;
-    --accent-foreground: 60 9.1% 97.8%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 60 9.1% 97.8%;
-    --border: 12 6.5% 15.1%;
-    --input: 12 6.5% 15.1%;
-    --ring: 24 5.7% 82.9%;
-    --chart-1: 0 72% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --background-secondary: hsl(20 14.3% 4.1%);
+    --foreground: #ffffff;
+    --foreground-shade: rgba(255, 255, 255, 0.5);
+    --background: hsl(23, 15%, 10%);
+    --background-secondary: hsl(20, 14.3%, 4.1%);
     --graph-grid: #292828;
+
+    /* The brand violet is 2.6-2.9:1 on the dark page; this lift is 5.4:1. */
+    --arbxz-accent-text: #8382f7;
+    /* danger 5.25:1, success 8.19:1 on the dark page. */
+    --danger-text: hsl(15, 85%, 56%);
+    --success-text: #00c6c2;
+
+    --window-border: rgba(255, 255, 255, 0.16);
+    /* Muted text 7.4:1 on the dark page. */
+    --window-muted: rgba(255, 255, 255, 0.62);
+    --field-dot: rgba(255, 255, 255, 0.09);
+    --glass-bg: rgba(23, 19, 18, 0.5);
+    --glass-tint: rgba(138, 138, 150, 0.25);
+
+    --secondary: hsl(23, 12%, 16%);
+    --muted: hsl(23, 12%, 16%);
+    --accent: hsl(23, 12%, 16%);
+    --destructive: hsl(15, 85%, 42%);
+    /* Bars are non-text and need 3:1; the brand violet misses on dark. */
+    --chart-1: var(--arbxz-accent-text);
   }
 }
 
@@ -151,56 +186,73 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background font-sans text-foreground;
+  }
+  h1,
+  h2 {
+    letter-spacing: -0.02em;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Same ring as arbxz: the text variant of the accent, 2px, 3px offset. */
+  :focus-visible {
+    outline: 2px solid var(--arbxz-accent-text);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
-.glass {
-  /* From https://css.glass */
-  -webkit-backdrop-filter: blur(7px);
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(7px);
+@utility glass {
+  background: var(--color-glass);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
-.dark .glass {
-  -webkit-backdrop-filter: blur(7px);
-  background: rgba(32, 32, 32, 0.12);
-  backdrop-filter: blur(7px);
+@utility bg-dot-field {
+  /* Dithered desktop behind the windows. */
+  background-image: radial-gradient(var(--field-dot) 1px, transparent 1.2px);
+  background-size: 8px 8px;
 }
 
-.background-grid {
-  background-image:
-    linear-gradient(
-      var(--graph-grid) 0.5px,
-      transparent 0.5px,
-      transparent calc(100% - 0.5px),
-      var(--graph-grid) calc(100% - 0.5px)
-    ),
-    linear-gradient(
-      90deg,
-      var(--graph-grid) 0.5px,
-      transparent 0.5px,
-      transparent calc(100% - 0.5px),
-      var(--graph-grid) calc(100% - 0.5px)
-    );
-  background-size: 100px 100px;
-  background-position: center center;
-}
-
-.background-grid::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 100%;
-  height: 100%;
-  background-image: radial-gradient(
-    circle at 50% 50%,
-    rgba(0, 0, 0, 0) 35%,
-    var(--background-secondary) 80%
-  );
-  background-size: 100% 100%;
-  background-position: center center;
-  z-index: 1;
+@utility crop-marks {
+  /* Printer's crop marks on two corners, decorative. */
+  position: relative;
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-color: var(--window-muted);
+    pointer-events: none;
+  }
+  &::before {
+    top: 0;
+    left: 0;
+    border-top: 1px solid;
+    border-left: 1px solid;
+  }
+  &::after {
+    right: 0;
+    bottom: 0;
+    border-right: 1px solid;
+    border-bottom: 1px solid;
+  }
 }

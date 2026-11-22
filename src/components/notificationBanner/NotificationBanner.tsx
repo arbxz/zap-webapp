@@ -2,6 +2,9 @@
 
 import { Bell, BellOff, BellRing } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+const bannerClass =
+  "mb-6 flex items-center gap-3 border border-window-border bg-window p-4 text-sm";
 import {
   notifyPermissionChanged,
   useNotificationPermission,
@@ -37,15 +40,12 @@ export const NotificationBanner = ({
 
   if (notificationStatus === "denied") {
     return (
-      <div className="mb-4 flex items-center gap-3 rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-sm">
-        <BellOff className="h-5 w-5 text-red-500" />
+      <div role="status" className={bannerClass}>
+        <BellOff aria-hidden="true" className="h-5 w-5 text-danger-text" />
         <div className="flex-1">
-          <p className="font-medium text-red-700 dark:text-red-400">
-            Notifications blocked
-          </p>
-          <p className="text-red-600/80 dark:text-red-300/80">
-            Please enable notifications in your browser settings to receive
-            outage alerts.
+          <p className="font-bold text-danger-text">Notifications blocked</p>
+          <p className="text-window-muted">
+            Turn them on in your browser settings to get outage alerts.
           </p>
         </div>
       </div>
@@ -54,13 +54,11 @@ export const NotificationBanner = ({
 
   if (notificationStatus === "granted") {
     return (
-      <div className="mb-4 flex items-center gap-3 rounded-lg border border-green-500/30 bg-green-500/10 p-4 text-sm">
-        <BellRing className="h-5 w-5 text-green-600 dark:text-green-400" />
+      <div role="status" className={bannerClass}>
+        <BellRing aria-hidden="true" className="h-5 w-5 text-success-text" />
         <div className="flex-1">
-          <p className="font-medium text-green-700 dark:text-green-400">
-            Notifications enabled
-          </p>
-          <p className="text-green-600/80 dark:text-green-300/80">
+          <p className="font-bold text-success-text">Notifications enabled</p>
+          <p className="text-window-muted">
             You&apos;ll receive alerts when outages are detected in your saved
             locations.
           </p>
@@ -71,22 +69,16 @@ export const NotificationBanner = ({
 
   if (showBanner) {
     return (
-      <div className="mb-4 flex items-center gap-3 rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-4 text-sm">
-        <Bell className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+      <div className={bannerClass}>
+        <Bell aria-hidden="true" className="h-5 w-5 text-arbxz-accent-text" />
         <div className="flex-1">
-          <p className="font-medium text-yellow-700 dark:text-yellow-400">
-            Get notified about power outages
-          </p>
-          <p className="text-yellow-600/80 dark:text-yellow-300/80">
+          <p className="font-bold">Get notified about power outages</p>
+          <p className="text-window-muted">
             Enable notifications to receive alerts when outages are detected in
             your saved locations.
           </p>
         </div>
-        <Button
-          onClick={handleEnableNotifications}
-          size="sm"
-          className="bg-yellow-500 hover:bg-yellow-600"
-        >
+        <Button onClick={handleEnableNotifications} size="sm">
           Enable
         </Button>
       </div>

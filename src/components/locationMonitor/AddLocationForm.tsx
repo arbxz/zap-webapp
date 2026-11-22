@@ -6,6 +6,7 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -71,27 +72,27 @@ const AddLocationForm = () => {
 
   return (
     <Dialog open={showDialog} onOpenChange={setShowDialog}>
-      <DialogTrigger>
-        <div className="flex h-full cursor-pointer flex-col items-center justify-center rounded-xl bg-yellow-300 p-8 font-medium text-stone-900 transition-transform duration-200 hover:scale-95">
-          <Plus size={48} className="mb-2" />
-          <p className="text-center text-xl">
-            Add a location
-            <br /> to monitor
-          </p>
-        </div>
+      <DialogTrigger className="flex h-full w-full flex-col items-center justify-center gap-2 border border-dashed border-window-border bg-accent-2 p-8 text-ink transition-transform duration-200 active:scale-95">
+        <Plus size={40} aria-hidden="true" />
+        <span className="font-mono text-sm font-bold tracking-wider uppercase">
+          Add a location
+        </span>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="sr-only">Add Location</DialogTitle>
-          <h2 className="mb-4 text-lg text-stone-500">
-            Add your home, office or any other location you want to monitor for
-            power outages.
-          </h2>
+          <DialogTitle>Add a location</DialogTitle>
+          <DialogDescription>
+            Pick a place to watch for power outages: home, the office, or
+            anywhere else.
+          </DialogDescription>
           <form onSubmit={handleFormSubmit} className="mt-4 space-y-4">
             {/* District Dropdown */}
             <div className="flex flex-col gap-4">
               <div className="flex flex-col justify-start gap-2">
-                <span className="text-sm text-stone-600">
+                <span
+                  id="add-location-district"
+                  className="font-mono text-xs tracking-wider text-window-muted uppercase"
+                >
                   Select your district
                 </span>
                 <Select
@@ -102,7 +103,7 @@ const AddLocationForm = () => {
                     setLocationType("");
                   }}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger aria-labelledby="add-location-district">
                     <SelectValue placeholder="Select your district" />
                   </SelectTrigger>
                   <SelectContent>
@@ -120,7 +121,10 @@ const AddLocationForm = () => {
               </div>
 
               <div className="flex flex-col justify-start gap-2">
-                <span className="text-sm text-stone-600">
+                <span
+                  id="add-location-locality"
+                  className="font-mono text-xs tracking-wider text-window-muted uppercase"
+                >
                   Choose your locality
                 </span>
 
@@ -131,7 +135,7 @@ const AddLocationForm = () => {
                   }}
                   disabled={!selectedDistrict}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger aria-labelledby="add-location-locality">
                     <SelectValue placeholder="Select your locality" />
                   </SelectTrigger>
                   <SelectContent>
@@ -150,7 +154,10 @@ const AddLocationForm = () => {
 
               {/* Location Type Dropdown */}
               <div className="flex flex-col justify-start gap-2">
-                <span className="text-sm text-stone-600">
+                <span
+                  id="add-location-type"
+                  className="font-mono text-xs tracking-wider text-window-muted uppercase"
+                >
                   Choose the location type
                 </span>
 
@@ -158,7 +165,7 @@ const AddLocationForm = () => {
                   onValueChange={(type) => setLocationType(type)}
                   disabled={!selectedLocality}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger aria-labelledby="add-location-type">
                     <SelectValue placeholder="Select the location type" />
                   </SelectTrigger>
                   <SelectContent>

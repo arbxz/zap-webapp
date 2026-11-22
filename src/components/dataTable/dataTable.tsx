@@ -21,14 +21,22 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+// Below md the table turns into one card per row, so each cell carries its
+// own label there; the header row (and its sort buttons) is hidden.
+const columnLabel = (id: string) =>
+  id === "actions" ? "Power" : id.charAt(0).toUpperCase() + id.slice(1);
+
 interface DataTableProps<TData extends RowData> {
   columns: ColumnDef<Features, TData, unknown>[];
   data: TData[];
+  /** Extra filters shown next to the locality search. */
+  toolbar?: React.ReactNode;
 }
 
 export function DataTable<TData extends RowData>({
   columns,
   data,
+  toolbar,
 }: DataTableProps<TData>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -49,9 +57,10 @@ export function DataTable<TData extends RowData>({
 
   return (
     <div>
-      <div className="flex items-center py-4">
+      <div className="flex flex-wrap items-center gap-3 py-4">
         <Input
-          placeholder="Filter localities..."
+          placeholder="Filter localities"
+          aria-label="Filter localities"
           value={
             (table.getColumn("locality")?.getFilterValue() as string) ?? ""
           }
@@ -60,10 +69,11 @@ export function DataTable<TData extends RowData>({
           }
           className="max-w-sm"
         />
+        {toolbar}
       </div>
-      <div className="glass overflow-hidden rounded-xl border border-yellow-500/40">
-        <Table>
-          <TableHeader>
+      <div className="overflow-x-auto border border-window-border bg-window">
+        <Table className="max-md:block">
+          <TableHeader className="max-md:hidden">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
@@ -81,28 +91,34 @@ export function DataTable<TData extends RowData>({
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody>
+          <TableBody className="max-md:block">
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className="max-md:grid max-md:grid-cols-[5.5rem_1fr] max-md:items-baseline max-md:gap-x-3 max-md:gap-y-2 max-md:p-4"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
+                    <TableCell key={cell.id} className="max-md:contents">
+                      <span className="font-mono text-xs tracking-wider text-window-muted uppercase md:hidden">
+                        {columnLabel(cell.column.id)}
+                      </span>
+                      <div>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </div>
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
-              <TableRow>
+              <TableRow className="max-md:block">
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-24 text-center max-md:flex max-md:items-center max-md:justify-center"
                 >
                   No results.
                 </TableCell>

@@ -2,14 +2,7 @@
 
 import { Bar, BarChart, CartesianGrid, LabelList, XAxis } from "recharts";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import Window from "@/components/window/Window";
 import {
   ChartConfig,
   ChartContainer,
@@ -34,9 +27,9 @@ const Region: { [key: string]: string[] } = {
 };
 
 const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "rgb(253 224 71 / var(--tw-bg-opacity, 1))",
+  powercuts: {
+    label: "Outages",
+    color: "var(--chart-1)",
   },
 } satisfies ChartConfig;
 
@@ -92,48 +85,49 @@ export function BarchartLabel({ data }: BarchartLabelProps) {
   );
 
   return (
-    <Card className="hidden h-full text-stone-900 lg:block dark:text-stone-100">
-      <CardHeader>
-        <CardTitle>Outages Chart</CardTitle>
-        <CardDescription>{formattedDate}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ChartContainer className="h-full" config={chartConfig}>
-          <BarChart
-            accessibilityLayer
-            data={chartData}
-            margin={{
-              top: 20,
-            }}
-          >
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="region"
-              tickLine={false}
-              tickMargin={10}
-              axisLine={false}
-              tickFormatter={(value: string) => String(value).slice(0, 5)}
+    <Window
+      title="outages.chart"
+      meta={formattedDate}
+      className="hidden lg:flex"
+      bodyClassName="flex flex-col gap-4 p-6"
+    >
+      <h2 className="text-lg font-bold">Outages today, by region</h2>
+      <ChartContainer className="h-full" config={chartConfig}>
+        <BarChart
+          accessibilityLayer
+          data={chartData}
+          // No Y axis, so the tallest bar reaches the top margin; its value
+          // label sits above it and needs the room.
+          margin={{
+            top: 32,
+          }}
+        >
+          <CartesianGrid vertical={false} />
+          <XAxis
+            dataKey="region"
+            tickLine={false}
+            tickMargin={10}
+            axisLine={false}
+            interval={0}
+            fontSize={11}
+          />
+          <ChartTooltip
+            cursor={false}
+            content={<ChartTooltipContent hideLabel />}
+          />
+          <Bar dataKey="powercuts" fill="var(--color-powercuts)">
+            <LabelList
+              position="top"
+              offset={12}
+              className="fill-foreground font-mono"
+              fontSize={12}
             />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
-            <Bar dataKey="powercuts" fill="var(--color-desktop)" radius={8}>
-              <LabelList
-                position="top"
-                offset={12}
-                className="fill-foreground"
-                fontSize={14}
-              />
-            </Bar>
-          </BarChart>
-        </ChartContainer>
-      </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="leading-none text-muted-foreground">
-          Showing total powercuts for all regions.
-        </div>
-      </CardFooter>
-    </Card>
+          </Bar>
+        </BarChart>
+      </ChartContainer>
+      <p className="font-mono text-xs text-window-muted">
+        Total power cuts per region today.
+      </p>
+    </Window>
   );
 }

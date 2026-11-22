@@ -45,11 +45,18 @@ export const columns: ColumnDef<Features, OutageItem, unknown>[] = [
     cell: ({ row }) => {
       const data = row.original;
 
+      // Icon plus a word, so the state never rests on colour alone.
       return Date.now() > Date.parse(data.from.toString()) &&
         Date.now() < Date.parse(data.to.toString()) ? (
-        <BatteryWarning className="text-yellow-500" width={16} height={16} />
+        <span className="flex items-center gap-2 font-mono text-xs font-bold whitespace-nowrap text-danger-text uppercase">
+          <BatteryWarning aria-hidden="true" width={16} height={16} />
+          Off now
+        </span>
       ) : (
-        <BatteryCharging className="text-yellow-400" width={16} height={16} />
+        <span className="flex items-center gap-2 font-mono text-xs whitespace-nowrap text-window-muted uppercase">
+          <BatteryCharging aria-hidden="true" width={16} height={16} />
+          Scheduled
+        </span>
       );
     },
   },

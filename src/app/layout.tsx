@@ -1,10 +1,21 @@
 import type { Metadata } from "next";
-import { Roboto } from "next/font/google";
+import { JetBrains_Mono, Source_Sans_3 } from "next/font/google";
 
 import "./globals.css";
 import { ThemeProvider } from "./provider/theme-provider";
 
-const roboto = Roboto({ subsets: ["latin"], weight: ["400", "500", "700"] });
+// Same pair as arbxz: Source Sans 3 for text, JetBrains Mono for UI labels
+// and window chrome.
+const sans = Source_Sans_3({
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  variable: "--font-source-sans",
+});
+const mono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-jetbrains-mono",
+});
 
 export const metadata: Metadata = {
   title: "ZAP",
@@ -29,7 +40,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${roboto.className} bg-white dark:bg-stone-950`}>
+      <body className={`${sans.variable} ${mono.variable}`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

@@ -17,6 +17,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import AddLocationForm from "./AddLocationForm";
+import Window from "@/components/window/Window";
 
 interface ILocationMonitorProps {
   outageData: Data;
@@ -32,13 +33,18 @@ const LocationMonitor = ({ outageData }: ILocationMonitorProps) => {
   };
 
   return (
-    <div className="relative z-50 py-8">
-      <h2 className="text-xl">Saved Locations</h2>
-      <div className="mb-4 text-muted-foreground">
-        Save locations you wish to monitor like your home or office.
-      </div>
+    <section aria-label="Saved locations" className="py-8">
+      <p className="font-mono text-xs tracking-wider text-window-muted uppercase">
+        {"// Saved locations"}
+      </p>
+      <h2 className="mt-2 text-2xl font-bold">
+        Places you watch<span className="text-arbxz-accent-text">.</span>
+      </h2>
+      <p className="mb-4 text-window-muted">
+        Save the places you care about, like home or the office.
+      </p>
 
-      <div className="grid w-full grid-cols-1 gap-8 py-4 md:grid-cols-2 lg:grid-cols-3">
+      <ul className="grid w-full grid-cols-1 gap-6 py-4 md:grid-cols-2 lg:grid-cols-3">
         {savedLocations.map(
           (
             location: { district: string; locality: string; type: string },
@@ -48,53 +54,83 @@ const LocationMonitor = ({ outageData }: ILocationMonitorProps) => {
               location.type.toLowerCase() as keyof typeof LocationTypeIcons;
             const IconComponent = LocationTypeIcons[iconKey]?.icon || HomeIcon;
             const label = LocationTypeIcons[iconKey]?.label || location.type;
+            const now = new Date();
+            const hasCurrentOutage = outageData.today.some(
+              (item) =>
+                item.locality === location.locality &&
+                new Date(item.from) <= now &&
+                new Date(item.to) >= now,
+            );
             return (
-              <div
+              <Window
+                as="li"
                 key={index}
-                className="glass group relative flex flex-col overflow-hidden rounded-2xl border border-yellow-200/80 p-4 text-stone-700 transition-all duration-200 select-none hover:bg-yellow-300 lg:p-8 dark:border-yellow-100/20 dark:text-stone-200 dark:shadow-cyan-500/10 dark:hover:border-yellow-500/80 dark:hover:text-stone-800 dark:hover:shadow-lg"
+                tone={hasCurrentOutage ? "accent" : "ink"}
+                title={`${label.toLowerCase()}.loc`}
+                meta={
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <button
+                        type="button"
+                        aria-label={`Remove ${location.locality}`}
+                        className="-m-1 grid size-6 place-items-center transition-transform hover:text-danger active:scale-90"
+                      >
+                        <Trash2 size={14} aria-hidden="true" />
+                      </button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Remove {location.locality}?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          You can add it again any time.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => deleteLocation(index)}
+                        >
+                          Remove
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                }
+                bodyClassName="p-4 lg:p-6"
               >
-                <div className="mb-4 flex items-center justify-between">
-                  <div className="flex items-center gap-4 text-lg">
-                    <IconComponent size={24} />
-                    <div>
-                      <div className="px-4 font-medium capitalize">{label}</div>
-                      <div className="rounded-full bg-yellow-300 px-4 py-1 text-sm font-medium text-stone-900">
-                        {location.locality}
-                      </div>
-                    </div>
+                <div className="mb-4 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <IconComponent size={24} aria-hidden="true" />
+                    <span className="bg-accent-2 px-3 py-1 font-mono text-xs font-bold text-ink uppercase">
+                      {location.locality}
+                    </span>
                   </div>
-                  {(() => {
-                    // Check if there is a current outage for this locality
-                    const now = new Date();
-                    const hasCurrentOutage = outageData.today.some(
-                      (item) =>
-                        item.locality === location.locality &&
-                        new Date(item.from) <= now &&
-                        new Date(item.to) >= now,
-                    );
-                    return hasCurrentOutage ? (
-                      <Unplug
-                        size={36}
-                        className="animate-pulse text-stone-900"
-                      />
-                    ) : (
-                      <PlugZap
-                        size={36}
-                        className="text-yellow-500 group-hover:text-stone-900"
-                      />
-                    );
-                  })()}
+                  {hasCurrentOutage ? (
+                    <span className="flex items-center gap-2 font-mono text-xs font-bold text-danger-text uppercase">
+                      <Unplug size={20} aria-hidden="true" />
+                      Outage now
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2 font-mono text-xs text-success-text uppercase">
+                      <PlugZap size={20} aria-hidden="true" />
+                      Powered
+                    </span>
+                  )}
                 </div>
                 <div>
                   <div>
-                    <h4>Planned outages</h4>
+                    <h3 className="font-mono text-xs tracking-wider text-window-muted uppercase">
+                      Planned outages
+                    </h3>
                     <ul className="space-y-2 py-2">
                       {/* Show today's outages for this locality if any */}
                       {outageData.today
                         .filter((item) => item.locality === location.locality)
                         .map((item, idx) => (
                           <li key={"today-" + idx}>
-                            <p className="text-md">
+                            <p>
                               Today :{" "}
                               {new Date(item.from).toLocaleTimeString([], {
                                 hour: "2-digit",
@@ -114,9 +150,9 @@ const LocationMonitor = ({ outageData }: ILocationMonitorProps) => {
                         .map((item, idx) => (
                           <li
                             key={"future-" + idx}
-                            className="flex flex-col items-start gap-2 border-b border-yellow-400 pb-2 group-hover:border-stone-800 last:border-0"
+                            className="flex flex-col items-start gap-2 border-b border-window-border pb-2 last:border-0"
                           >
-                            <p className="text-md">
+                            <p>
                               {new Date(item.from).toLocaleDateString("en", {
                                 weekday: "long",
                                 day: "2-digit",
@@ -177,7 +213,7 @@ const LocationMonitor = ({ outageData }: ILocationMonitorProps) => {
                           (item) => item.locality === location.locality,
                         ).length === 0 && (
                           <li>
-                            <p className="text-md text-stone-400 group-hover:text-stone-700 dark:text-stone-200">
+                            <p className="text-window-muted">
                               No planned outages for{" "}
                               <span className="capitalize">
                                 {location.locality}
@@ -188,42 +224,16 @@ const LocationMonitor = ({ outageData }: ILocationMonitorProps) => {
                     </ul>
                   </div>
                 </div>
-
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <button
-                      name="delete saved location"
-                      className="absolute right-2 -bottom-24 block rounded-full p-2 transition-all duration-200 group-hover:bottom-2 hover:bg-red-500 hover:text-red-100"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        Are you absolutely sure you want to remove this
-                        location?
-                      </AlertDialogTitle>
-                      <AlertDialogDescription>
-                        You can always add it again, no worries.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => deleteLocation(index)}>
-                        Continue
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
+              </Window>
             );
           },
         )}
 
-        <AddLocationForm />
-      </div>
-    </div>
+        <li className="min-h-48">
+          <AddLocationForm />
+        </li>
+      </ul>
+    </section>
   );
 };
 

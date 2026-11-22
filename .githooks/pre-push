@@ -1,0 +1,36 @@
+#!/usr/bin/env sh
+# Pre-push checks (arbxz-practices). Installed with: git config core.hooksPath .githooks
+# Runs whichever of typecheck, lint, test and build the project defines, and on a push
+# to main also checks that the app version went up. Skip once with: git push --no-verify
+set -e
+
+if [ -f pnpm-lock.yaml ]; then PM=pnpm
+elif [ -f yarn.lock ]; then PM=yarn
+elif [ -f bun.lockb ] || [ -f bun.lock ]; then PM=bun
+else PM=npm; fi
+
+has_script() { node -e "process.exit(require('./package.json').scripts?.['$1'] ? 0 : 1)" 2>/dev/null; }
+
+if [ -f package.json ]; then
+  for s in typecheck check lint test build; do
+    if has_script "$s"; then
+      echo "pre-push: $PM run $s"
+      $PM run "$s"
+    fi
+  done
+fi
+
+# git passes "<local ref> <local sha> <remote ref> <remote sha>" lines on stdin
+while read -r local_ref local_sha remote_ref remote_sha; do
+  case "$remote_ref" in
+    refs/heads/main|refs/heads/master|refs/heads/prod|refs/heads/production)
+      if [ -f scripts/check-version.mjs ]; then
+        echo "pre-push: checking the version went up for ${remote_ref#refs/heads/}"
+        git fetch --quiet origin "${remote_ref#refs/heads/}" || true
+        node scripts/check-version.mjs --base "origin/${remote_ref#refs/heads/}" --head "$local_sha"
+      fi
+      ;;
+  esac
+done
+
+echo "pre-push: all checks passed"

@@ -1,146 +1,21 @@
-"use client";
+import OutageDashboard from "@/components/outageDashboard/OutageDashboard";
+import { EMPTY_OUTAGES, getOutages } from "@/lib/outages";
 
-import * as React from "react";
+// Rebuilt in the background at most every 5 minutes (OUTAGES_REVALIDATE).
+export const revalidate = 300;
 
-import { useEffect, useState, useSyncExternalStore } from "react";
-import RegionSelector from "@/components/regionSelector/RegionSelector";
-import OutageTable from "@/components/outageTable/OutageTable";
-import { Data } from "./types";
-import { BarchartLabel } from "@/components/barchartLabel/BarChartLabel";
-import Navigation from "@/components/navigation/Navigation";
-import LocationMonitor from "@/components/locationMonitor/LocationMonitor";
-import Footer from "@/components/footer/Footer";
-import { SunDim } from "lucide-react";
-import { useOutageNotifications } from "@/hooks/useOutageNotifications";
-import { NotificationBanner } from "@/components/notificationBanner/NotificationBanner";
+async function loadOutages() {
+  try {
+    return { data: await getOutages(), loadFailed: false };
+  } catch (error) {
+    console.error(error);
+    return { data: EMPTY_OUTAGES, loadFailed: true };
+  }
+}
 
-// The page is prerendered at build time, so a server-rendered clock showed
-// the build time and never matched the client (React error #418). The server
-// snapshot is null; the client reads the time on hydration and every second.
-const subscribeToClock = (onTick: () => void) => {
-  const id = setInterval(onTick, 1000);
-  return () => clearInterval(id);
-};
-const getClockSnapshot = () => Math.floor(Date.now() / 1000) * 1000;
-const getServerClockSnapshot = () => null;
-
-export default function Home() {
-  const now = useSyncExternalStore(
-    subscribeToClock,
-    getClockSnapshot,
-    getServerClockSnapshot,
-  );
-  const currentTime = now === null ? null : new Date(now);
-
-  const [outageData, setOutageData] = useState<Data>({
-    today: [],
-    future: [],
-  });
-
-  const [selectedRegion, setSelectedRegion] = useState<string>("all");
-  const [loading, setLoading] = useState<boolean>(true);
-
-  // Enable outage notifications
-  const { requestNotificationPermission } = useOutageNotifications(outageData);
-
-  useEffect(() => {
-    const fetchDataFromAPI = async () => {
-      try {
-        const response = await fetch("/api", { cache: "no-store" });
-        if (response) {
-          const item = await response.json();
-
-          setOutageData(item.data);
-          setLoading(false);
-        }
-      } catch (error) {
-        setLoading(false);
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDataFromAPI();
-  }, []);
-
-  return (
-    <main className="relative mx-auto min-h-screen max-w-7xl overflow-hidden px-8 lg:px-12">
-      <div className="background-grid absolute top-0 left-0 h-full w-full"></div>
-
-      <div className="relative z-50">
-        <Navigation />
-
-        <div className="py-0">
-          <NotificationBanner
-            onEnableNotifications={requestNotificationPermission}
-          />
-        </div>
-
-        <div className="mb-8 flex w-full items-center justify-between text-xl">
-          <div>Overview</div>
-
-          <div className="flex items-baseline gap-4">
-            <div className="uppercase">
-              {currentTime?.toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: true,
-              }) ?? "--:--"}
-            </div>
-            <div className="text-sm text-stone-500">time</div>
-          </div>
-
-          <div className="capitalize">
-            {currentTime
-              ?.toLocaleDateString("en-GB", { day: "numeric", month: "long" })
-              .toLowerCase()}
-          </div>
-        </div>
-
-        <div className="mb-4 grid grid-cols-1 items-start justify-start gap-8 lg:grid-cols-3">
-          <div className="flex h-full flex-col items-center justify-center gap-4 overflow-hidden rounded-2xl bg-yellow-300 p-4 md:p-8">
-            <h2 className="text-3xl font-normal text-stone-800">
-              Monitor power outages
-              <br /> live in Mauritius.
-            </h2>
-          </div>
-
-          <div className="glass flex h-full flex-col items-center justify-between gap-4 overflow-hidden rounded-2xl border border-yellow-500/30 p-4 text-foreground shadow-lg shadow-transparent transition-all duration-200 hover:shadow-yellow-500/10 md:p-6 dark:hover:shadow-yellow-400/20">
-            <SunDim size={64} className="mr-auto text-yellow-300" />
-            <p className="text-right text-3xl">
-              Remember you can always go green and become independent from the
-              grid using{" "}
-              <b className="text-yellow-500 dark:text-yellow-300">
-                solar energy
-              </b>
-              .
-            </p>
-          </div>
-
-          <BarchartLabel data={outageData} />
-        </div>
-
-        <LocationMonitor outageData={outageData} />
-
-        <section
-          id="outage_list"
-          className="flex w-full flex-wrap gap-8 lg:flex-nowrap"
-        >
-          <RegionSelector
-            selectedRegion={selectedRegion}
-            setSelectedRegion={setSelectedRegion}
-            data={outageData}
-          />
-          <OutageTable
-            selectedRegion={selectedRegion}
-            isLoading={loading}
-            data={outageData || []}
-          />
-        </section>
-
-        <Footer />
-      </div>
-    </main>
-  );
+// A Server Component: the outage list is in the HTML on first paint instead
+// of arriving from a client fetch after hydration.
+export default async function Home() {
+  const { data, loadFailed } = await loadOutages();
+  return <OutageDashboard initialData={data} loadFailed={loadFailed} />;
 }
