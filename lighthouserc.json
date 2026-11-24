@@ -3,7 +3,11 @@
     "collect": {
       "startServerCommand": "pnpm start --port 3100",
       "startServerReadyPattern": "Ready",
-      "url": ["http://localhost:3100/", "http://localhost:3100/dashboard"],
+      "url": [
+        "http://localhost:3100/",
+        "http://localhost:3100/dashboard",
+        "http://localhost:3100/community"
+      ],
       "numberOfRuns": 3,
       "settings": {
         "formFactor": "mobile",
