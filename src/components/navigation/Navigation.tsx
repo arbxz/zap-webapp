@@ -18,16 +18,21 @@ const Navigation = () => {
     <header className="pt-4 pb-8 md:pt-6">
       <nav
         aria-label="Main"
-        className="flex w-full items-center gap-3 border border-window-border px-4 py-3 shadow-xs glass"
+        className="grid w-full grid-cols-2 items-center gap-3 border border-window-border px-4 py-3 shadow-xs glass sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]"
       >
-        <Link href="/" className="flex shrink-0 items-center">
+        <Link href="/" className="flex items-center justify-self-start">
           <span className="bg-window-title px-3 py-1 font-mono text-xs font-bold tracking-wider text-window-title-fg uppercase">
             Zap
           </span>
           <span className="sr-only">Zap home</span>
         </Link>
 
-        <div className="mx-auto flex items-center gap-2">
+        {/*
+          Phones: logo and theme button on the first row, links centred on
+          their own row below. From sm up: one row, with equal side columns
+          so the links sit on the bar's centre whatever the sides measure.
+        */}
+        <div className="col-span-2 row-start-2 flex items-center justify-center gap-2 sm:col-span-1 sm:col-start-2 sm:row-start-1">
           <Link
             href="/#outage_list"
             className="inline-flex min-h-10 items-center bg-accent-2 px-3 font-mono text-xs font-bold tracking-wider whitespace-nowrap text-ink uppercase transition-transform active:scale-95 sm:px-4"
@@ -42,7 +47,7 @@ const Navigation = () => {
           </Link>
         </div>
 
-        <div className="ml-auto">
+        <div className="col-start-2 row-start-1 justify-self-end sm:col-start-3">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button size="icon" variant={"secondary"}>
