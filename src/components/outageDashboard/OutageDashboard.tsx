@@ -136,7 +136,7 @@ export default function OutageDashboard({
           meta={
             <Link
               href="/community"
-              className="underline underline-offset-4 hover:no-underline"
+              className="-my-1 inline-flex min-h-6 items-center px-1 underline underline-offset-4 hover:no-underline"
             >
               Full view
             </Link>
