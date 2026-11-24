@@ -1,14 +1,30 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { Pause, Play, RotateCcw, RotateCw } from "lucide-react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
+import {
+  CircleHelp,
+  Pause,
+  Play,
+  RotateCcw,
+  RotateCw,
+  Zap,
+  ZapOff,
+} from "lucide-react";
 import { useTheme } from "next-themes";
 
+import type { OutageItem } from "@/app/types";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import type { CommunityScene as SceneHandle } from "./buildScene";
 import { HOUSES, houseDetails, type ScreenPoint } from "./houses";
+import { powerStatus, type PowerStatus } from "./power";
 
 const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
 const subscribeToMotion = (onChange: () => void) => {
@@ -20,12 +36,58 @@ const getMotionSnapshot = () => window.matchMedia(REDUCED_MOTION).matches;
 // The server can't know; assume reduced so nothing spins before hydration.
 const getServerMotionSnapshot = () => true;
 
+// Power status follows the clock: an outage starts or ends on the minute.
+// The server snapshot is null so the prerendered HTML never claims a status
+// for the build time.
+const subscribeToMinute = (onTick: () => void) => {
+  const id = setInterval(onTick, 30_000);
+  return () => clearInterval(id);
+};
+const getMinuteSnapshot = () => Math.floor(Date.now() / 60_000) * 60_000;
+const getServerMinuteSnapshot = () => null;
+
+const timeFormat = new Intl.DateTimeFormat("en-GB", {
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZone: "Indian/Mauritius",
+});
+
+function PowerLine({ status }: { status: PowerStatus }) {
+  if (status.state === "on") {
+    return (
+      <p className="flex items-center justify-center gap-1 text-xs font-bold text-success-text sm:justify-start">
+        <Zap aria-hidden="true" className="size-3.5" />
+        Power on
+      </p>
+    );
+  }
+  if (status.state === "off") {
+    return (
+      <p className="flex items-center justify-center gap-1 text-xs font-bold text-danger-text sm:justify-start">
+        <ZapOff aria-hidden="true" className="size-3.5" />
+        Power off until {timeFormat.format(status.until)}
+      </p>
+    );
+  }
+  return (
+    <p className="flex items-center justify-center gap-1 text-xs text-window-muted sm:justify-start">
+      <CircleHelp aria-hidden="true" className="size-3.5" />
+      Power status unknown
+    </p>
+  );
+}
+
 /** One button press turns the view 22.5 degrees. */
 const TURN_STEP = Math.PI / 8;
 
 type Status = "loading" | "ready" | "failed";
 
-export default function CommunityScene() {
+interface CommunitySceneProps {
+  /** Today's and upcoming planned outages, or null if they couldn't load. */
+  outages: OutageItem[] | null;
+}
+
+export default function CommunityScene({ outages }: CommunitySceneProps) {
   const stageRef = useRef<HTMLDivElement>(null);
   const labelRefs = useRef<(HTMLLIElement | null)[]>([]);
   const sceneRef = useRef<SceneHandle | null>(null);
@@ -37,6 +99,18 @@ export default function CommunityScene() {
     subscribeToMotion,
     getMotionSnapshot,
     getServerMotionSnapshot,
+  );
+  const now = useSyncExternalStore(
+    subscribeToMinute,
+    getMinuteSnapshot,
+    getServerMinuteSnapshot,
+  );
+  const power = useMemo(
+    () =>
+      now === null
+        ? null
+        : HOUSES.map((house) => powerStatus(house, outages, new Date(now))),
+    [outages, now],
   );
   const dark = resolvedTheme === "dark";
   const rotating = !reducedMotion && spinning;
@@ -72,6 +146,7 @@ export default function CommunityScene() {
           houses: HOUSES,
           dark: false,
           autoRotate: false,
+          powerMotion: false,
           onFrame: placeLabels,
         });
         sceneRef.current = scene;
@@ -102,6 +177,14 @@ export default function CommunityScene() {
   useEffect(() => {
     sceneRef.current?.setAutoRotate(rotating);
   }, [rotating, status]);
+
+  useEffect(() => {
+    sceneRef.current?.setPowerMotion(!reducedMotion);
+  }, [reducedMotion, status]);
+
+  useEffect(() => {
+    if (power) sceneRef.current?.setPower(power);
+  }, [power, status]);
 
   const failed = status === "failed";
 
@@ -153,6 +236,7 @@ export default function CommunityScene() {
                 {house.name}
               </p>
               <p className="text-xs">{house.locality}</p>
+              {power && <PowerLine status={power[i]} />}
               {/* Phones show name and town only, so six labels fit; the rest stays readable by screen readers. */}
               <p
                 className={cn(

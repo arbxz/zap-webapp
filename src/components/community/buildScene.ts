@@ -9,12 +9,12 @@ import {
   ndcToScreen,
 } from "./houses";
 import { MAURITIUS_OUTLINE } from "./mauritius";
+import type { PowerStatus } from "./power";
+import { buildPowerGrid } from "./powerLines";
 
-// three.js takes plain colours, not CSS variables. These mirror the tokens in
-// globals.css: ink, the brand violet and the lime accent-2.
+// three.js takes plain colours, not CSS variables. INK mirrors the token in
+// globals.css.
 const INK = "#040202";
-const VIOLET = "#3d3bf3";
-const LIME = "#def861";
 const WALL = "#ffffff";
 const ROOF = "#f1f1f3";
 
@@ -29,11 +29,17 @@ const COAST_SLOPE = 0.35;
 const COAST_WIDTH = 0.5;
 /** Height of the island's flat top; houses stand on it. */
 const LAND_HEIGHT = COAST_SLOPE;
+/** Where the grid pylon stands: inland, between the houses. */
+const GRID_HUB = { lat: -20.25, lng: 57.61 };
+const GABLE_HEIGHT = 0.7;
+const FLAT_ROOF_HEIGHT = 0.15;
 
 export interface CommunitySceneOptions {
   houses: House[];
   dark: boolean;
   autoRotate: boolean;
+  /** Whether the power pulses move; off for reduced motion. */
+  powerMotion: boolean;
   /** Called after each rendered frame with where each house's label goes. */
   onFrame: (points: ScreenPoint[]) => void;
 }
@@ -41,6 +47,9 @@ export interface CommunitySceneOptions {
 export interface CommunityScene {
   setDark: (dark: boolean) => void;
   setAutoRotate: (on: boolean) => void;
+  setPowerMotion: (on: boolean) => void;
+  /** Power status for each house, in the same order as `houses`. */
+  setPower: (statuses: PowerStatus[]) => void;
   /** Turn the camera round the island; positive is to the left. */
   turn: (radians: number) => void;
   /** Pause rendering while the scene is off screen. */
@@ -83,7 +92,7 @@ function buildHouse(house: House): THREE.Group {
     const shape = new THREE.Shape();
     shape.moveTo(-w / 2 - overhang, 0);
     shape.lineTo(w / 2 + overhang, 0);
-    shape.lineTo(0, 0.7);
+    shape.lineTo(0, GABLE_HEIGHT);
     shape.closePath();
     const geo = new THREE.ExtrudeGeometry(shape, {
       depth: d + overhang * 2,
@@ -96,37 +105,12 @@ function buildHouse(house: House): THREE.Group {
     group.add(withEdges(roof));
   } else {
     const slab = new THREE.Mesh(
-      new THREE.BoxGeometry(w + 0.2, 0.15, d + 0.2),
+      new THREE.BoxGeometry(w + 0.2, FLAT_ROOF_HEIGHT, d + 0.2),
       roofMat,
     );
-    slab.position.y = h + 0.075;
+    slab.position.y = h + FLAT_ROOF_HEIGHT / 2;
     slab.castShadow = true;
     group.add(withEdges(slab));
-  }
-
-  // Door and windows on the side facing the camera's starting point (+z).
-  const front = d / 2 + 0.03;
-  const door = new THREE.Mesh(
-    new THREE.BoxGeometry(0.4, 0.7, 0.05),
-    new THREE.MeshStandardMaterial({ color: LIME }),
-  );
-  door.position.set(0, 0.35, front);
-  group.add(withEdges(door));
-
-  const glass = new THREE.MeshStandardMaterial({
-    color: VIOLET,
-    roughness: 0.3,
-    metalness: 0.2,
-  });
-  const windowGeo = new THREE.BoxGeometry(0.4, 0.35, 0.05);
-  for (let floor = 0; floor < house.floors; floor++) {
-    const y = floor * FLOOR_HEIGHT + 0.6;
-    const offsets = floor === 0 ? [-w / 3, w / 3] : [-w / 3, 0, w / 3];
-    for (const x of offsets) {
-      const pane = new THREE.Mesh(windowGeo, glass);
-      pane.position.set(x, y, front);
-      group.add(withEdges(pane));
-    }
   }
 
   const { x, z } = geoToScene(house.lng, house.lat);
@@ -178,7 +162,7 @@ export function createCommunityScene(
   canvas.setAttribute("role", "img");
   canvas.setAttribute(
     "aria-label",
-    `A map of Mauritius with ${options.houses.length} white houses on it: ${options.houses.map((h) => h.locality).join(", ")}. Drag sideways to turn the view.`,
+    `A map of Mauritius with ${options.houses.length} white houses on it: ${options.houses.map((h) => h.locality).join(", ")}. A power line runs from a pylon to each house. Drag sideways to turn the view.`,
   );
   canvas.className = "block size-full";
   // Vertical swipes still scroll the page on touch screens; sideways drags turn the view.
@@ -232,6 +216,22 @@ export function createCommunityScene(
 
   for (const house of options.houses) scene.add(buildHouse(house));
 
+  const hub = geoToScene(GRID_HUB.lng, GRID_HUB.lat);
+  const grid = buildPowerGrid(
+    new THREE.Vector3(hub.x, LAND_HEIGHT, hub.z),
+    options.houses.map((house) => {
+      const { x, z } = geoToScene(house.lng, house.lat);
+      const roof = house.roof === "gable" ? GABLE_HEIGHT : FLAT_ROOF_HEIGHT;
+      return new THREE.Vector3(
+        x,
+        LAND_HEIGHT + house.floors * FLOOR_HEIGHT + roof,
+        z,
+      );
+    }),
+  );
+  scene.add(grid.group);
+  let powerMotion = options.powerMotion;
+
   const centres = options.houses.map((house) => {
     const { x, z } = geoToScene(house.lng, house.lat);
     return new THREE.Vector3(x, LAND_HEIGHT, z);
@@ -273,7 +273,8 @@ export function createCommunityScene(
 
   const projected = new THREE.Vector3();
   const towardCamera = new THREE.Vector3();
-  const render = () => {
+  const render = (time: number) => {
+    grid.update(time / 1000, powerMotion);
     controls.update();
     renderer.render(scene, camera);
     // Each label hangs below the house: its base, on the side nearest the
@@ -306,6 +307,10 @@ export function createCommunityScene(
     setAutoRotate: (on) => {
       controls.autoRotate = on;
     },
+    setPowerMotion: (on) => {
+      powerMotion = on;
+    },
+    setPower: (statuses) => statuses.forEach((s, i) => grid.setStatus(i, s)),
     turn,
     setRunning,
     dispose: () => {

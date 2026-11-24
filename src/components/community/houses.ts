@@ -6,6 +6,11 @@ export interface House {
   locality: string;
   /** District key, matching `District` in src/constants. */
   district: string;
+  /**
+   * The locality as the outage dataset spells it (see
+   * src/constants/localities_output.json), used to look up outages.
+   */
+  outageLocality: string;
   lat: number;
   lng: number;
   bedrooms: number;
@@ -23,6 +28,7 @@ export const HOUSES: House[] = [
     id: "port-louis",
     name: "Les Filaos",
     locality: "Port Louis",
+    outageLocality: "PORT-LOUIS",
     district: "portlouis",
     lat: -20.1619,
     lng: 57.5012,
@@ -37,6 +43,7 @@ export const HOUSES: House[] = [
     id: "grand-baie",
     name: "Villa Lagon",
     locality: "Grand Baie",
+    outageLocality: "GRAND BAY",
     district: "rivieredurempart",
     lat: -20.0182,
     lng: 57.5802,
@@ -51,6 +58,7 @@ export const HOUSES: House[] = [
     id: "centre-de-flacq",
     name: "Ti Kaz",
     locality: "Centre de Flacq",
+    outageLocality: "CENTRAL FLACQ",
     district: "flacq",
     lat: -20.1897,
     lng: 57.7144,
@@ -65,6 +73,7 @@ export const HOUSES: House[] = [
     id: "flic-en-flac",
     name: "Maison Corail",
     locality: "Flic en Flac",
+    outageLocality: "FLIC-EN-FLAC",
     district: "blackriver",
     lat: -20.2817,
     lng: 57.3778,
@@ -79,6 +88,7 @@ export const HOUSES: House[] = [
     id: "curepipe",
     name: "Villa Bougainville",
     locality: "Curepipe",
+    outageLocality: "CUREPIPE",
     district: "plainewilhems",
     lat: -20.3163,
     lng: 57.5259,
@@ -93,6 +103,7 @@ export const HOUSES: House[] = [
     id: "mahebourg",
     name: "Les Badamiers",
     locality: "Mahébourg",
+    outageLocality: "MAHEBOURG",
     district: "grandport",
     lat: -20.4081,
     lng: 57.7,
