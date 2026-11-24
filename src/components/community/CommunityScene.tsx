@@ -110,7 +110,7 @@ export default function CommunityScene() {
       <div
         ref={stageRef}
         className={cn(
-          "relative h-[480px] overflow-hidden md:h-[560px]",
+          "relative h-[520px] overflow-hidden md:h-[600px]",
           failed && "h-auto md:h-auto",
         )}
       >
@@ -119,18 +119,18 @@ export default function CommunityScene() {
             role="status"
             className="absolute inset-0 grid place-items-center font-mono text-xs text-window-muted uppercase"
           >
-            Loading the street…
+            Loading the map…
           </p>
         )}
         {failed && (
           <p role="alert" className="p-4 text-sm text-window-muted">
-            Your browser couldn&apos;t draw the 3D street, so here are the
-            houses as a list.
+            Your browser couldn&apos;t draw the 3D map, so here are the houses
+            as a list.
           </p>
         )}
 
         <ul
-          aria-label="Houses on the street"
+          aria-label="Houses on the map"
           className={cn(
             failed
               ? "grid gap-2 p-4 sm:grid-cols-2 lg:grid-cols-3"
@@ -150,9 +150,18 @@ export default function CommunityScene() {
               )}
             >
               <p className="font-mono text-xs font-bold uppercase">
-                No. {house.number} {house.name}
+                {house.name}
               </p>
-              <p className="text-xs text-window-muted">{houseDetails(house)}</p>
+              <p className="text-xs">{house.locality}</p>
+              {/* Phones show name and town only, so six labels fit; the rest stays readable by screen readers. */}
+              <p
+                className={cn(
+                  "text-xs text-window-muted",
+                  !failed && "sr-only sm:not-sr-only",
+                )}
+              >
+                {houseDetails(house)}
+              </p>
             </li>
           ))}
         </ul>

@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 
 import CommunityScene from "@/components/community/CommunityScene";
-import { HOUSES, STREET_NAME } from "@/components/community/houses";
+import { HOUSES } from "@/components/community/houses";
 import Footer from "@/components/footer/Footer";
 import Navigation from "@/components/navigation/Navigation";
 import Window from "@/components/window/Window";
 
 export const metadata: Metadata = {
   title: "Community | ZAP",
-  description: `A 3D view of ${HOUSES.length} white houses on ${STREET_NAME}.`,
+  description: `A 3D map of Mauritius with ${HOUSES.length} white houses placed where they are on the island.`,
 };
 
 export default function CommunityPage() {
@@ -24,7 +24,7 @@ export default function CommunityPage() {
         <Window
           as="section"
           tone="accent"
-          title={STREET_NAME}
+          title="Mauritius"
           meta={`${HOUSES.length} houses`}
         >
           <CommunityScene />

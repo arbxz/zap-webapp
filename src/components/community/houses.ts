@@ -1,126 +1,149 @@
-/** One house on the street. Sizes are in scene units (about a metre each). */
+/** One house on the map. Sizes are in scene units. */
 export interface House {
   id: string;
-  /** Street number, shown on the label. */
-  number: number;
   name: string;
+  /** Town or village, as shown on the label. */
+  locality: string;
+  /** District key, matching `District` in src/constants. */
+  district: string;
+  lat: number;
+  lng: number;
   bedrooms: number;
   floors: 1 | 2;
   built: number;
   roof: "gable" | "flat";
-  /** Which side of the street: north faces +z, south faces -z. */
-  side: "north" | "south";
-  /** Position along the street. */
-  x: number;
   width: number;
   depth: number;
 }
 
-export const STREET_NAME = "Rue des Flamboyants";
-/** Road width, centred on z = 0. */
-export const ROAD_WIDTH = 4;
-/** Pavement width on each side of the road. */
-export const PAVEMENT_WIDTH = 1.2;
-/** Gap between the pavement and the front of a house. */
-export const FRONT_YARD = 1.4;
-export const FLOOR_HEIGHT = 1.6;
+export const FLOOR_HEIGHT = 1;
 
 export const HOUSES: House[] = [
   {
-    id: "h1",
-    number: 1,
-    name: "Villa Lagon",
-    bedrooms: 3,
-    floors: 1,
-    built: 1998,
-    roof: "gable",
-    side: "north",
-    x: -7,
-    width: 4,
-    depth: 3.4,
-  },
-  {
-    id: "h3",
-    number: 3,
+    id: "port-louis",
     name: "Les Filaos",
+    locality: "Port Louis",
+    district: "portlouis",
+    lat: -20.1619,
+    lng: 57.5012,
     bedrooms: 4,
     floors: 2,
     built: 2006,
     roof: "flat",
-    side: "north",
-    x: 0,
-    width: 3.6,
-    depth: 3.2,
+    width: 2.2,
+    depth: 1.8,
   },
   {
-    id: "h5",
-    number: 5,
-    name: "Maison Corail",
-    bedrooms: 2,
+    id: "grand-baie",
+    name: "Villa Lagon",
+    locality: "Grand Baie",
+    district: "rivieredurempart",
+    lat: -20.0182,
+    lng: 57.5802,
+    bedrooms: 3,
     floors: 1,
-    built: 2015,
+    built: 1998,
     roof: "gable",
-    side: "north",
-    x: 7,
-    width: 3.4,
-    depth: 3,
+    width: 2.4,
+    depth: 2,
   },
   {
-    id: "h2",
-    number: 2,
+    id: "centre-de-flacq",
     name: "Ti Kaz",
+    locality: "Centre de Flacq",
+    district: "flacq",
+    lat: -20.1897,
+    lng: 57.7144,
     bedrooms: 2,
     floors: 1,
     built: 1987,
     roof: "flat",
-    side: "south",
-    x: -7,
-    width: 3.2,
-    depth: 3,
+    width: 2,
+    depth: 1.8,
   },
   {
-    id: "h4",
-    number: 4,
+    id: "flic-en-flac",
+    name: "Maison Corail",
+    locality: "Flic en Flac",
+    district: "blackriver",
+    lat: -20.2817,
+    lng: 57.3778,
+    bedrooms: 2,
+    floors: 1,
+    built: 2015,
+    roof: "gable",
+    width: 2,
+    depth: 1.8,
+  },
+  {
+    id: "curepipe",
     name: "Villa Bougainville",
+    locality: "Curepipe",
+    district: "plainewilhems",
+    lat: -20.3163,
+    lng: 57.5259,
     bedrooms: 5,
     floors: 2,
     built: 2019,
     roof: "gable",
-    side: "south",
-    x: 0,
-    width: 4.2,
-    depth: 3.6,
+    width: 2.6,
+    depth: 2.2,
   },
   {
-    id: "h6",
-    number: 6,
+    id: "mahebourg",
     name: "Les Badamiers",
+    locality: "Mahébourg",
+    district: "grandport",
+    lat: -20.4081,
+    lng: 57.7,
     bedrooms: 3,
     floors: 2,
     built: 2011,
     roof: "flat",
-    side: "south",
-    x: 7,
-    width: 3.6,
-    depth: 3.2,
+    width: 2.2,
+    depth: 1.8,
   },
 ];
-
-/** z of the house's centre: road, pavement and front yard, then half its depth. */
-export function houseZ(house: House): number {
-  const front = ROAD_WIDTH / 2 + PAVEMENT_WIDTH + FRONT_YARD;
-  const z = front + house.depth / 2;
-  return house.side === "north" ? -z : z;
-}
-
-export function houseAddress(house: House): string {
-  return `No. ${house.number}, ${STREET_NAME}`;
-}
 
 export function houseDetails(house: House): string {
   const beds = `${house.bedrooms} bed`;
   const floors = house.floors === 1 ? "1 floor" : `${house.floors} floors`;
   return `${beds} · ${floors} · built ${house.built}`;
+}
+
+/** Roughly the middle of the main island; it becomes the scene's origin. */
+const ORIGIN = { lat: -20.25, lng: 57.55 };
+/** Kilometres of real ground per scene unit. */
+export const KM_PER_UNIT = 2;
+const KM_PER_DEGREE_LAT = 110.57;
+const KM_PER_DEGREE_LNG = 111.32 * Math.cos((ORIGIN.lat * Math.PI) / 180);
+
+/**
+ * Longitude and latitude to scene x and z. Over an island 60 km across a flat
+ * projection is accurate to well under a scene unit. North is -z, away from
+ * the camera's starting position.
+ */
+export function geoToScene(lng: number, lat: number): { x: number; z: number } {
+  return {
+    x: ((lng - ORIGIN.lng) * KM_PER_DEGREE_LNG) / KM_PER_UNIT,
+    z: ((ORIGIN.lat - lat) * KM_PER_DEGREE_LAT) / KM_PER_UNIT,
+  };
+}
+
+/** Ray casting: is the point inside the polygon? */
+export function isInsidePolygon(
+  [x, y]: [number, number],
+  polygon: [number, number][],
+): boolean {
+  let inside = false;
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const [xi, yi] = polygon[i];
+    const [xj, yj] = polygon[j];
+    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) {
+      inside = !inside;
+    }
+  }
+  return inside;
 }
 
 export interface ScreenPoint {
