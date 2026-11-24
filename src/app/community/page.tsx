@@ -32,9 +32,15 @@ export default async function CommunityPage() {
       <main className="relative mx-auto min-h-screen max-w-7xl px-4 md:px-8 lg:px-12">
         <Navigation />
 
-        <h1 className="mb-8 font-mono text-sm tracking-wider text-window-muted uppercase">
+        <h1 className="mb-4 font-mono text-sm tracking-wider text-window-muted uppercase">
           {"// Community"}
         </h1>
+
+        <p className="mb-8 max-w-2xl text-lg">
+          {HOUSES.length} houses across Mauritius, each in its own town. A power
+          line runs to every house: moving lime pulses mean it has power, and a
+          red line means a planned outage is on there right now.
+        </p>
 
         <Window
           as="section"

@@ -119,7 +119,6 @@ export default function CommunityScene({ outages }: CommunitySceneProps) {
     const stage = stageRef.current;
     if (!stage) return;
     let cancelled = false;
-    let observer: IntersectionObserver | undefined;
 
     const placeLabels = (points: ScreenPoint[]) => {
       points.forEach((point, i) => {
@@ -138,33 +137,47 @@ export default function CommunityScene({ outages }: CommunitySceneProps) {
       });
     };
 
-    // three.js loads only on this page and only after the HTML is up.
-    import("./buildScene")
-      .then(({ createCommunityScene }) => {
-        if (cancelled) return;
-        const scene = createCommunityScene(stage, {
-          houses: HOUSES,
-          dark: false,
-          autoRotate: false,
-          powerMotion: false,
-          onFrame: placeLabels,
+    // three.js (and the WebGL context) load only once the stage is within
+    // 300px of the viewport, so a page that shows the map below the fold
+    // doesn't pay for it on first load. After that the same observer pauses
+    // rendering whenever the map scrolls out of view.
+    let loading = false;
+    let visible = false;
+    const load = () => {
+      loading = true;
+      import("./buildScene")
+        .then(({ createCommunityScene }) => {
+          if (cancelled) return;
+          sceneRef.current = createCommunityScene(stage, {
+            houses: HOUSES,
+            dark: false,
+            autoRotate: false,
+            powerMotion: false,
+            onFrame: placeLabels,
+          });
+          // The map may have scrolled away while three.js was loading.
+          sceneRef.current.setRunning(visible);
+          setStatus("ready");
+        })
+        .catch((error: unknown) => {
+          // No WebGL (old device, disabled GPU) or the chunk failed to load.
+          console.error(error);
+          if (!cancelled) setStatus("failed");
         });
-        sceneRef.current = scene;
-        observer = new IntersectionObserver(([entry]) =>
-          scene.setRunning(entry.isIntersecting),
-        );
-        observer.observe(stage);
-        setStatus("ready");
-      })
-      .catch((error: unknown) => {
-        // No WebGL (old device, disabled GPU) or the chunk failed to load.
-        console.error(error);
-        if (!cancelled) setStatus("failed");
-      });
+    };
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        visible = entry.isIntersecting;
+        if (visible && !loading) load();
+        sceneRef.current?.setRunning(visible);
+      },
+      { rootMargin: "300px 0px" },
+    );
+    observer.observe(stage);
 
     return () => {
       cancelled = true;
-      observer?.disconnect();
+      observer.disconnect();
       sceneRef.current?.dispose();
       sceneRef.current = null;
     };

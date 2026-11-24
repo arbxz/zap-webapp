@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 import OutageTable from "@/components/outageTable/OutageTable";
 import { Data } from "@/app/types";
 import { BarchartLabel } from "@/components/barchartLabel/BarChartLabel";
@@ -11,6 +11,8 @@ import { SunDim } from "lucide-react";
 import { useOutageNotifications } from "@/hooks/useOutageNotifications";
 import { NotificationBanner } from "@/components/notificationBanner/NotificationBanner";
 import Window from "@/components/window/Window";
+import CommunityScene from "@/components/community/CommunityScene";
+import Link from "next/link";
 
 // The page is prerendered at build time, so a server-rendered clock showed
 // the build time and never matched the client (React error #418). The server
@@ -41,6 +43,10 @@ export default function OutageDashboard({
 
   // The server already fetched the data; nothing loads after hydration.
   const outageData = initialData;
+  const allOutages = useMemo(
+    () => [...outageData.today, ...outageData.future],
+    [outageData],
+  );
 
   // Enable outage notifications
   const { requestNotificationPermission } = useOutageNotifications(outageData);
@@ -121,6 +127,24 @@ export default function OutageDashboard({
 
           <BarchartLabel data={outageData} />
         </div>
+
+        {/* The map the hero promises: island-wide power at a glance, before
+            the saved locations and the full outage list. */}
+        <Window
+          as="section"
+          title="map.3d"
+          meta={
+            <Link
+              href="/community"
+              className="underline underline-offset-4 hover:no-underline"
+            >
+              Full view
+            </Link>
+          }
+          className="mt-6"
+        >
+          <CommunityScene outages={loadFailed ? null : allOutages} />
+        </Window>
 
         <LocationMonitor outageData={outageData} />
 
