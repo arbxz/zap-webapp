@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -16,7 +18,7 @@ const Navigation = () => {
     <header className="pt-4 pb-8 md:pt-6">
       <nav
         aria-label="Main"
-        className="flex w-full items-center gap-4 border border-window-border px-4 py-3 shadow-xs glass"
+        className="flex w-full items-center gap-3 border border-window-border px-4 py-3 shadow-xs glass"
       >
         <Link href="/" className="flex shrink-0 items-center">
           <span className="bg-window-title px-3 py-1 font-mono text-xs font-bold tracking-wider text-window-title-fg uppercase">
@@ -25,12 +27,20 @@ const Navigation = () => {
           <span className="sr-only">Zap home</span>
         </Link>
 
-        <a
-          href="#outage_list"
-          className="mx-auto inline-flex min-h-10 items-center bg-accent-2 px-4 font-mono text-xs font-bold tracking-wider text-ink uppercase transition-transform active:scale-95"
-        >
-          All outages
-        </a>
+        <div className="mx-auto flex items-center gap-2">
+          <Link
+            href="/#outage_list"
+            className="inline-flex min-h-10 items-center bg-accent-2 px-3 font-mono text-xs font-bold tracking-wider whitespace-nowrap text-ink uppercase transition-transform active:scale-95 sm:px-4"
+          >
+            All outages
+          </Link>
+          <Link
+            href="/community"
+            className="inline-flex min-h-10 items-center border border-window-border px-3 font-mono text-xs font-bold tracking-wider whitespace-nowrap uppercase transition-transform active:scale-95 sm:px-4"
+          >
+            Community
+          </Link>
+        </div>
 
         <div className="ml-auto">
           <DropdownMenu>
