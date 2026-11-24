@@ -25,6 +25,7 @@ import { cn } from "@/lib/utils";
 import type { CommunityScene as SceneHandle } from "./buildScene";
 import { HOUSES, houseDetails, type ScreenPoint } from "./houses";
 import { powerStatus, type PowerStatus } from "./power";
+import { hasFastWebGL } from "./webgl";
 
 const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
 const subscribeToMotion = (onChange: () => void) => {
@@ -145,9 +146,16 @@ export default function CommunityScene({ outages }: CommunitySceneProps) {
     let visible = false;
     const load = () => {
       loading = true;
-      import("./buildScene")
-        .then(({ createCommunityScene }) => {
+      hasFastWebGL()
+        // Without a GPU, three.js never loads and the list shows instead.
+        .then((fast) => (fast ? import("./buildScene") : null))
+        .then((module) => {
           if (cancelled) return;
+          if (!module) {
+            setStatus("failed");
+            return;
+          }
+          const { createCommunityScene } = module;
           sceneRef.current = createCommunityScene(stage, {
             houses: HOUSES,
             dark: false,
@@ -160,7 +168,7 @@ export default function CommunityScene({ outages }: CommunitySceneProps) {
           setStatus("ready");
         })
         .catch((error: unknown) => {
-          // No WebGL (old device, disabled GPU) or the chunk failed to load.
+          // The chunk failed to load, or WebGL broke despite the check.
           console.error(error);
           if (!cancelled) setStatus("failed");
         });
@@ -220,8 +228,8 @@ export default function CommunityScene({ outages }: CommunitySceneProps) {
         )}
         {failed && (
           <p role="alert" className="p-4 text-sm text-window-muted">
-            Your browser couldn&apos;t draw the 3D map, so here are the houses
-            as a list.
+            The 3D map needs graphics acceleration, which isn&apos;t available
+            here, so here are the houses as a list.
           </p>
         )}
 

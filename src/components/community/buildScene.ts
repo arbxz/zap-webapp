@@ -152,7 +152,15 @@ export function createCommunityScene(
   container: HTMLElement,
   options: CommunitySceneOptions,
 ): CommunityScene {
-  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  // failIfMajorPerformanceCaveat refuses software WebGL (SwiftShader,
+  // llvmpipe), where the animation loop runs on the CPU and freezes the
+  // page for seconds. The constructor then throws, and the component shows
+  // the houses as a plain list instead.
+  const renderer = new THREE.WebGLRenderer({
+    antialias: true,
+    alpha: true,
+    failIfMajorPerformanceCaveat: true,
+  });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
