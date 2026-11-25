@@ -33,7 +33,11 @@ const LocationMonitor = ({ outageData }: ILocationMonitorProps) => {
   };
 
   return (
-    <section aria-label="Saved locations" className="py-8">
+    <section
+      id="saved_locations"
+      aria-label="Saved locations"
+      className="scroll-mt-4 py-8"
+    >
       <p className="font-mono text-xs tracking-wider text-window-muted uppercase">
         {"// Saved locations"}
       </p>

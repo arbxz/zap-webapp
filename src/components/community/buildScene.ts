@@ -1,16 +1,11 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
-import {
-  FLOOR_HEIGHT,
-  type House,
-  type ScreenPoint,
-  geoToScene,
-  ndcToScreen,
-} from "./houses";
+import { type ScreenPoint, geoToScene, ndcToScreen } from "./geo";
 import { MAURITIUS_OUTLINE } from "./mauritius";
+import { houseShape } from "./places";
 import type { PowerStatus } from "./power";
-import { buildPowerGrid } from "./powerLines";
+import { buildPowerGrid, type PowerGrid } from "./powerLines";
 
 // three.js takes plain colours, not CSS variables. INK mirrors the token in
 // globals.css.
@@ -31,11 +26,18 @@ const COAST_WIDTH = 0.5;
 const LAND_HEIGHT = COAST_SLOPE;
 /** Where the grid pylon stands: inland, between the houses. */
 const GRID_HUB = { lat: -20.25, lng: 57.61 };
+const FLOOR_HEIGHT = 1;
 const GABLE_HEIGHT = 0.7;
 const FLAT_ROOF_HEIGHT = 0.15;
 
+/** What the scene needs to place a house: an id and a position. */
+export interface ScenePlace {
+  id: string;
+  lat: number;
+  lng: number;
+}
+
 export interface CommunitySceneOptions {
-  houses: House[];
   dark: boolean;
   autoRotate: boolean;
   /** Whether the power pulses move; off for reduced motion. */
@@ -48,7 +50,9 @@ export interface CommunityScene {
   setDark: (dark: boolean) => void;
   setAutoRotate: (on: boolean) => void;
   setPowerMotion: (on: boolean) => void;
-  /** Power status for each house, in the same order as `houses`. */
+  /** Replace the houses and their power lines, e.g. when a place is saved. */
+  setPlaces: (places: ScenePlace[]) => void;
+  /** Power status for each house, in the same order as the places. */
   setPower: (statuses: PowerStatus[]) => void;
   /** Turn the camera round the island; positive is to the left. */
   turn: (radians: number) => void;
@@ -68,8 +72,17 @@ function withEdges(mesh: THREE.Mesh, thresholdAngle = 1): THREE.Group {
   return group;
 }
 
-function buildHouse(house: House): THREE.Group {
+function roofHeight(place: ScenePlace): number {
+  const shape = houseShape(place.id);
+  return (
+    shape.floors * FLOOR_HEIGHT +
+    (shape.roof === "gable" ? GABLE_HEIGHT : FLAT_ROOF_HEIGHT)
+  );
+}
+
+function buildHouse(place: ScenePlace): THREE.Group {
   const group = new THREE.Group();
+  const house = houseShape(place.id);
   const { width: w, depth: d } = house;
   const h = house.floors * FLOOR_HEIGHT;
 
@@ -113,9 +126,22 @@ function buildHouse(house: House): THREE.Group {
     group.add(withEdges(slab));
   }
 
-  const { x, z } = geoToScene(house.lng, house.lat);
+  const { x, z } = geoToScene(place.lng, place.lat);
   group.position.set(x, LAND_HEIGHT, z);
   return group;
+}
+
+/** Free a group's geometries and materials once it leaves the scene. */
+function disposeGroup(group: THREE.Object3D) {
+  group.traverse((object) => {
+    if (object instanceof THREE.Mesh || object instanceof THREE.LineSegments) {
+      object.geometry.dispose();
+      const materials = Array.isArray(object.material)
+        ? object.material
+        : [object.material];
+      materials.forEach((m: THREE.Material) => m.dispose());
+    }
+  });
 }
 
 function buildIsland(material: THREE.Material): THREE.Group {
@@ -170,7 +196,7 @@ export function createCommunityScene(
   canvas.setAttribute("role", "img");
   canvas.setAttribute(
     "aria-label",
-    `A map of Mauritius with ${options.houses.length} white houses on it: ${options.houses.map((h) => h.locality).join(", ")}. A power line runs from a pylon to each house. Drag sideways to turn the view.`,
+    "A map of Mauritius with a white house at each place you saved and a power line running to it. The list of places is next to the map. Drag sideways to turn the view.",
   );
   canvas.className = "block size-full";
   // Vertical swipes still scroll the page on touch screens; sideways drags turn the view.
@@ -222,32 +248,42 @@ export function createCommunityScene(
   const landMat = new THREE.MeshStandardMaterial({ roughness: 1 });
   scene.add(buildIsland(landMat));
 
-  for (const house of options.houses) scene.add(buildHouse(house));
-
+  // Houses and lines are rebuilt whenever the saved places change.
   const hub = geoToScene(GRID_HUB.lng, GRID_HUB.lat);
-  const grid = buildPowerGrid(
-    new THREE.Vector3(hub.x, LAND_HEIGHT, hub.z),
-    options.houses.map((house) => {
-      const { x, z } = geoToScene(house.lng, house.lat);
-      const roof = house.roof === "gable" ? GABLE_HEIGHT : FLAT_ROOF_HEIGHT;
-      return new THREE.Vector3(
-        x,
-        LAND_HEIGHT + house.floors * FLOOR_HEIGHT + roof,
-        z,
-      );
-    }),
-  );
-  scene.add(grid.group);
+  const hubBase = new THREE.Vector3(hub.x, LAND_HEIGHT, hub.z);
+  let housesGroup = new THREE.Group();
+  let grid: PowerGrid = buildPowerGrid(hubBase, []);
+  let centres: THREE.Vector3[] = [];
+  let reach: number[] = [];
+  scene.add(housesGroup, grid.group);
   let powerMotion = options.powerMotion;
 
-  const centres = options.houses.map((house) => {
-    const { x, z } = geoToScene(house.lng, house.lat);
-    return new THREE.Vector3(x, LAND_HEIGHT, z);
-  });
-  // Half the house's footprint diagonal: how far from the centre a label sits.
-  const reach = options.houses.map(
-    (house) => Math.hypot(house.width, house.depth) / 2,
-  );
+  const setPlaces = (places: ScenePlace[]) => {
+    scene.remove(housesGroup, grid.group);
+    disposeGroup(housesGroup);
+    disposeGroup(grid.group);
+
+    housesGroup = new THREE.Group();
+    for (const place of places) housesGroup.add(buildHouse(place));
+    grid = buildPowerGrid(
+      hubBase,
+      places.map((place) => {
+        const { x, z } = geoToScene(place.lng, place.lat);
+        return new THREE.Vector3(x, LAND_HEIGHT + roofHeight(place), z);
+      }),
+    );
+    scene.add(housesGroup, grid.group);
+
+    centres = places.map((place) => {
+      const { x, z } = geoToScene(place.lng, place.lat);
+      return new THREE.Vector3(x, LAND_HEIGHT, z);
+    });
+    // Half the footprint's diagonal: how far from the centre a label sits.
+    reach = places.map((place) => {
+      const { width, depth } = houseShape(place.id);
+      return Math.hypot(width, depth) / 2;
+    });
+  };
 
   const setDark = (dark: boolean) => {
     landMat.color.set(dark ? LAND.dark : LAND.light);
@@ -318,6 +354,7 @@ export function createCommunityScene(
     setPowerMotion: (on) => {
       powerMotion = on;
     },
+    setPlaces,
     setPower: (statuses) => statuses.forEach((s, i) => grid.setStatus(i, s)),
     turn,
     setRunning,
@@ -325,18 +362,7 @@ export function createCommunityScene(
       setRunning(false);
       resizeObserver.disconnect();
       controls.dispose();
-      scene.traverse((object) => {
-        if (
-          object instanceof THREE.Mesh ||
-          object instanceof THREE.LineSegments
-        ) {
-          object.geometry.dispose();
-          const materials = Array.isArray(object.material)
-            ? object.material
-            : [object.material];
-          materials.forEach((m: THREE.Material) => m.dispose());
-        }
-      });
+      disposeGroup(scene);
       renderer.dispose();
       canvas.remove();
     },
