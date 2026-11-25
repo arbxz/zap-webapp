@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 
 import type { OutageItem } from "@/app/types";
-import { HOUSES } from "@/components/community/houses";
-import { normaliseLocality, powerStatus } from "@/components/community/power";
-import localities from "@/constants/localities_output.json";
+import {
+  nextOutage,
+  normaliseLocality,
+  powerStatus,
+} from "@/components/community/power";
 
-const curepipe = HOUSES.find((h) => h.id === "curepipe")!;
+const curepipe = { district: "plainewilhems", locality: "CUREPIPE" };
 
 function outage(overrides: Partial<OutageItem>): OutageItem {
   return {
@@ -21,17 +23,6 @@ function outage(overrides: Partial<OutageItem>): OutageItem {
 }
 
 const during = new Date("2026-11-29T08:00:00.000Z");
-
-describe("houses and the outage dataset", () => {
-  it("spell every locality the way the dataset does", () => {
-    const districts = localities.districts as Record<string, string[]>;
-    for (const house of HOUSES) {
-      expect(districts[house.district], house.locality).toContain(
-        house.outageLocality,
-      );
-    }
-  });
-});
 
 describe("normaliseLocality", () => {
   it("ignores case, accents and punctuation", () => {
@@ -75,5 +66,27 @@ describe("powerStatus", () => {
 
   it("is unknown when the outage data couldn't be loaded", () => {
     expect(powerStatus(curepipe, null, during)).toEqual({ state: "unknown" });
+  });
+});
+
+describe("nextOutage", () => {
+  it("finds the soonest outage that hasn't started", () => {
+    const later = outage({
+      from: new Date("2026-12-02T04:30:00.000Z"),
+      to: new Date("2026-12-02T10:00:00.000Z"),
+    });
+    const sooner = outage({
+      from: new Date("2026-12-01T04:30:00.000Z"),
+      to: new Date("2026-12-01T10:00:00.000Z"),
+    });
+    expect(nextOutage(curepipe, [later, sooner, outage({})], during)).toEqual({
+      from: new Date("2026-12-01T04:30:00.000Z"),
+      to: new Date("2026-12-01T10:00:00.000Z"),
+    });
+  });
+
+  it("is undefined with nothing planned or no data", () => {
+    expect(nextOutage(curepipe, [outage({})], during)).toBeUndefined();
+    expect(nextOutage(curepipe, null, during)).toBeUndefined();
   });
 });

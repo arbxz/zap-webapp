@@ -16,15 +16,19 @@ import {
   Zap,
   ZapOff,
 } from "lucide-react";
+import Link from "next/link";
 import { useTheme } from "next-themes";
 
 import type { OutageItem } from "@/app/types";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+import { useSavedLocations } from "@/lib/browserState";
+
 import type { CommunityScene as SceneHandle } from "./buildScene";
-import { HOUSES, houseDetails, type ScreenPoint } from "./houses";
-import { powerStatus, type PowerStatus } from "./power";
+import type { ScreenPoint } from "./geo";
+import { DISTRICT_NAMES, displayLocality, placeSavedLocations } from "./places";
+import { nextOutage, powerStatus, type PowerStatus } from "./power";
 import { hasFastWebGL } from "./webgl";
 
 const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
@@ -52,6 +56,15 @@ const timeFormat = new Intl.DateTimeFormat("en-GB", {
   minute: "2-digit",
   timeZone: "Indian/Mauritius",
 });
+const dayFormat = new Intl.DateTimeFormat("en-GB", {
+  weekday: "short",
+  day: "numeric",
+  month: "short",
+  timeZone: "Indian/Mauritius",
+});
+
+/** Gap kept between labels that would otherwise overlap, in pixels. */
+const LABEL_GAP = 4;
 
 function PowerLine({ status }: { status: PowerStatus }) {
   if (status.state === "on") {
@@ -95,6 +108,12 @@ export default function CommunityScene({ outages }: CommunitySceneProps) {
   const [status, setStatus] = useState<Status>("loading");
   const [spinning, setSpinning] = useState(false);
 
+  const savedLocations = useSavedLocations();
+  const { places, offMap } = useMemo(
+    () => placeSavedLocations(savedLocations),
+    [savedLocations],
+  );
+
   const { resolvedTheme } = useTheme();
   const reducedMotion = useSyncExternalStore(
     subscribeToMotion,
@@ -106,12 +125,19 @@ export default function CommunityScene({ outages }: CommunitySceneProps) {
     getMinuteSnapshot,
     getServerMinuteSnapshot,
   );
+  // Saved places live in this browser, so the server renders none. `now` is
+  // null until hydration, which also tells us whether "no places yet" is
+  // true or just the server's view.
+  const hydrated = now !== null;
   const power = useMemo(
     () =>
       now === null
         ? null
-        : HOUSES.map((house) => powerStatus(house, outages, new Date(now))),
-    [outages, now],
+        : places.map((place) => ({
+            status: powerStatus(place, outages, new Date(now)),
+            next: nextOutage(place, outages, new Date(now)),
+          })),
+    [places, outages, now],
   );
   const dark = resolvedTheme === "dark";
   const rotating = !reducedMotion && spinning;
@@ -122,20 +148,44 @@ export default function CommunityScene({ outages }: CommunitySceneProps) {
     let cancelled = false;
 
     const placeLabels = (points: ScreenPoint[]) => {
-      points.forEach((point, i) => {
-        const label = labelRefs.current[i];
-        if (!label) return;
-        // Keep the whole label inside the stage, even for a house at the edge.
-        const half = label.offsetWidth / 2;
-        const x = Math.min(Math.max(point.x, half), stage.clientWidth - half);
-        // 8px gap under the anchor, and no lower than the stage's bottom edge.
-        const y = Math.min(
-          point.y + 8,
-          stage.clientHeight - label.offsetHeight,
-        );
-        label.style.transform = `translate(${x}px, ${y}px) translateX(-50%)`;
-        label.style.opacity = point.visible ? "1" : "0";
-      });
+      // Top to bottom, each label moves down until it clears the ones
+      // already placed, so two saved places close together stay readable.
+      const placed: {
+        left: number;
+        right: number;
+        top: number;
+        bottom: number;
+      }[] = [];
+      points
+        .map((point, i) => ({ point, label: labelRefs.current[i] }))
+        .sort((a, b) => a.point.y - b.point.y)
+        .forEach(({ point, label }) => {
+          if (!label) return;
+          const width = label.offsetWidth;
+          const height = label.offsetHeight;
+          // Keep the whole label inside the stage, even for a house at the edge.
+          const half = width / 2;
+          const x = Math.min(Math.max(point.x, half), stage.clientWidth - half);
+          let y = point.y + 8;
+          for (const other of placed) {
+            const overlaps =
+              x - half < other.right + LABEL_GAP &&
+              x + half > other.left - LABEL_GAP &&
+              y < other.bottom + LABEL_GAP &&
+              y + height > other.top - LABEL_GAP;
+            if (overlaps) y = other.bottom + LABEL_GAP;
+          }
+          // No lower than the stage's bottom edge.
+          y = Math.min(y, stage.clientHeight - height);
+          placed.push({
+            left: x - half,
+            right: x + half,
+            top: y,
+            bottom: y + height,
+          });
+          label.style.transform = `translate(${x}px, ${y}px) translateX(-50%)`;
+          label.style.opacity = point.visible ? "1" : "0";
+        });
     };
 
     // three.js (and the WebGL context) load only once the stage is within
@@ -157,7 +207,6 @@ export default function CommunityScene({ outages }: CommunitySceneProps) {
           }
           const { createCommunityScene } = module;
           sceneRef.current = createCommunityScene(stage, {
-            houses: HOUSES,
             dark: false,
             autoRotate: false,
             powerMotion: false,
@@ -203,9 +252,14 @@ export default function CommunityScene({ outages }: CommunitySceneProps) {
     sceneRef.current?.setPowerMotion(!reducedMotion);
   }, [reducedMotion, status]);
 
+  // Rebuild the houses when the saved places change, then colour their lines.
   useEffect(() => {
-    if (power) sceneRef.current?.setPower(power);
-  }, [power, status]);
+    sceneRef.current?.setPlaces(places);
+  }, [places, status]);
+
+  useEffect(() => {
+    if (power) sceneRef.current?.setPower(power.map((p) => p.status));
+  }, [power, places, status]);
 
   const failed = status === "failed";
 
@@ -229,48 +283,96 @@ export default function CommunityScene({ outages }: CommunitySceneProps) {
         {failed && (
           <p role="alert" className="p-4 text-sm text-window-muted">
             The 3D map needs graphics acceleration, which isn&apos;t available
-            here, so here are the houses as a list.
+            here, so here are your places as a list.
           </p>
         )}
 
+        {hydrated && places.length === 0 && offMap.length === 0 && (
+          <div className="absolute inset-x-4 top-4 z-10 mx-auto max-w-sm border border-window-border bg-window p-4 text-center shadow-xs">
+            <p className="font-mono text-xs font-bold uppercase">
+              No saved places yet
+            </p>
+            <p className="mt-1 text-sm text-window-muted">
+              Save your home or work in{" "}
+              <Link
+                href="/#saved_locations"
+                className="text-arbxz-accent-text underline underline-offset-4 hover:no-underline"
+              >
+                Saved locations
+              </Link>{" "}
+              and it shows up here with its power status.
+            </p>
+          </div>
+        )}
+
         <ul
-          aria-label="Houses on the map"
+          aria-label="Your saved places"
           className={cn(
             failed
               ? "grid gap-2 p-4 sm:grid-cols-2 lg:grid-cols-3"
               : "pointer-events-none absolute inset-0",
           )}
         >
-          {HOUSES.map((house, i) => (
-            <li
-              key={house.id}
-              ref={(node) => {
-                labelRefs.current[i] = node;
-              }}
-              className={cn(
-                "border border-window-border bg-window px-2 py-1 text-window-fg",
-                !failed &&
-                  "absolute top-0 left-0 w-max max-w-[8.5rem] text-center opacity-0 shadow-xs will-change-transform sm:max-w-none sm:text-left sm:whitespace-nowrap",
-              )}
-            >
-              <p className="font-mono text-xs font-bold uppercase">
-                {house.name}
-              </p>
-              <p className="text-xs">{house.locality}</p>
-              {power && <PowerLine status={power[i]} />}
-              {/* Phones show name and town only, so six labels fit; the rest stays readable by screen readers. */}
-              <p
+          {places.map((place, i) => {
+            const next = power?.[i].next;
+            return (
+              <li
+                key={place.id}
+                ref={(node) => {
+                  labelRefs.current[i] = node;
+                }}
                 className={cn(
-                  "text-xs text-window-muted",
-                  !failed && "sr-only sm:not-sr-only",
+                  "border border-window-border bg-window px-2 py-1 text-window-fg",
+                  !failed &&
+                    "absolute top-0 left-0 w-max max-w-[8.5rem] text-center opacity-0 shadow-xs will-change-transform sm:max-w-none sm:text-left sm:whitespace-nowrap",
                 )}
               >
-                {houseDetails(house)}
-              </p>
-            </li>
-          ))}
+                <p className="font-mono text-xs font-bold uppercase">
+                  {place.types.join(" · ")}
+                </p>
+                <p className="text-xs">
+                  {place.name}
+                  <span className="text-window-muted">
+                    , {place.districtName}
+                  </span>
+                </p>
+                {power && <PowerLine status={power[i].status} />}
+                {/* Phones keep labels short; the rest stays readable by screen readers. */}
+                <div
+                  className={cn(
+                    "text-xs text-window-muted",
+                    !failed && "sr-only sm:not-sr-only",
+                  )}
+                >
+                  {power && (
+                    <p>
+                      {next
+                        ? `Next outage ${dayFormat.format(next.from)}, ${timeFormat.format(next.from)}–${timeFormat.format(next.to)}`
+                        : "No planned outages"}
+                    </p>
+                  )}
+                  {place.precision === "district" && (
+                    <p>Position approximate (district centre)</p>
+                  )}
+                </div>
+              </li>
+            );
+          })}
         </ul>
       </div>
+
+      {offMap.length > 0 && (
+        <p className="border-t border-window-border px-3 py-2 text-sm text-window-muted">
+          Not on this map:{" "}
+          {offMap
+            .map(
+              (location) =>
+                `${location.type} in ${displayLocality(location.locality)}, ${DISTRICT_NAMES[location.district] ?? location.district}`,
+            )
+            .join("; ")}
+          . The map shows the main island only.
+        </p>
+      )}
 
       {status === "ready" && (
         <div

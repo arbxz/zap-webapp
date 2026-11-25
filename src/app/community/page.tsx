@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 
 import CommunityScene from "@/components/community/CommunityScene";
-import { HOUSES } from "@/components/community/houses";
 import Footer from "@/components/footer/Footer";
 import Navigation from "@/components/navigation/Navigation";
 import Window from "@/components/window/Window";
@@ -22,7 +21,8 @@ async function loadOutages() {
 
 export const metadata: Metadata = {
   title: "Community | ZAP",
-  description: `A 3D map of Mauritius with ${HOUSES.length} white houses placed where they are on the island.`,
+  description:
+    "Your saved places on a 3D map of Mauritius, with live power status from the planned outage data.",
 };
 
 export default async function CommunityPage() {
@@ -37,17 +37,12 @@ export default async function CommunityPage() {
         </h1>
 
         <p className="mb-8 max-w-2xl text-lg">
-          {HOUSES.length} houses across Mauritius, each in its own town. A power
-          line runs to every house: moving lime pulses mean it has power, and a
-          red line means a planned outage is on there right now.
+          The places you&apos;ve saved, on a map of Mauritius. A power line runs
+          to each one: moving lime pulses mean it has power, and a red line
+          means a planned outage is on there right now.
         </p>
 
-        <Window
-          as="section"
-          tone="accent"
-          title="Mauritius"
-          meta={`${HOUSES.length} houses`}
-        >
+        <Window as="section" tone="accent" title="Mauritius">
           <CommunityScene outages={outages} />
         </Window>
 

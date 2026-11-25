@@ -30,6 +30,20 @@ const Footer = () => {
         </a>{" "}
         for the API.
       </p>
+
+      <p>
+        Map positions from{" "}
+        <a
+          href="https://www.geonames.org"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={linkClass}
+        >
+          GeoNames
+          <span className="sr-only"> (opens in a new tab)</span>
+        </a>{" "}
+        (CC BY 4.0) and coastline from Natural Earth.
+      </p>
     </footer>
   );
 };
