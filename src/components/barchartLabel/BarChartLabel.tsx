@@ -1,21 +1,11 @@
 "use client";
 
-import { Bar, BarChart, CartesianGrid, LabelList, XAxis } from "recharts";
-
-import Window from "@/components/window/Window";
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
-import { Data, OutageItem } from "@/app/types";
+import dynamic from "next/dynamic";
 import { useMemo, useSyncExternalStore } from "react";
 
-interface ChartData {
-  region: string;
-  powercuts: number;
-}
+import Window from "@/components/window/Window";
+import { Data, OutageItem } from "@/app/types";
+import type { RegionCount } from "./RegionBarChart";
 
 const Region: { [key: string]: string[] } = {
   north: ["pamplemousses", "rivieredurempart", "portlouis"],
@@ -25,13 +15,6 @@ const Region: { [key: string]: string[] } = {
   south: ["savanne"],
   rodrigues: ["rodrigues"],
 };
-
-const chartConfig = {
-  powercuts: {
-    label: "Outages",
-    color: "var(--chart-1)",
-  },
-} satisfies ChartConfig;
 
 interface BarchartLabelProps {
   data: Data;
@@ -62,6 +45,23 @@ const getToday = () => {
 };
 const getServerToday = () => "";
 
+// The chart's window only shows from Tailwind's lg breakpoint up. Phones never
+// see it, so they shouldn't download and run recharts (~370 KB) for it. The
+// placeholder has the chart's aspect ratio, so nothing moves when it loads.
+const LARGE = "(min-width: 64rem)";
+const subscribeToLarge = (onChange: () => void) => {
+  const query = window.matchMedia(LARGE);
+  query.addEventListener("change", onChange);
+  return () => query.removeEventListener("change", onChange);
+};
+const getLargeSnapshot = () => window.matchMedia(LARGE).matches;
+const getServerLarge = () => false;
+
+const RegionBarChart = dynamic(() => import("./RegionBarChart"), {
+  ssr: false,
+  loading: () => <div aria-hidden="true" className="aspect-video h-full" />,
+});
+
 export function BarchartLabel({ data }: BarchartLabelProps) {
   const { today } = data;
   const formattedDate = useSyncExternalStore(
@@ -69,11 +69,16 @@ export function BarchartLabel({ data }: BarchartLabelProps) {
     getToday,
     getServerToday,
   );
+  const isLarge = useSyncExternalStore(
+    subscribeToLarge,
+    getLargeSnapshot,
+    getServerLarge,
+  );
 
   // Derived straight from props during render. Mirroring `today` into state and
   // recomputing in an effect cost an extra render pass per data change, and the
   // effect listed the very state it set as a dependency.
-  const chartData: ChartData[] = useMemo(
+  const chartData: RegionCount[] = useMemo(
     () =>
       Object.keys(Region).map((region) => ({
         region,
@@ -92,39 +97,11 @@ export function BarchartLabel({ data }: BarchartLabelProps) {
       bodyClassName="flex flex-col gap-4 p-6"
     >
       <h2 className="text-lg font-bold">Outages today, by region</h2>
-      <ChartContainer className="h-full" config={chartConfig}>
-        <BarChart
-          accessibilityLayer
-          data={chartData}
-          // No Y axis, so the tallest bar reaches the top margin; its value
-          // label sits above it and needs the room.
-          margin={{
-            top: 32,
-          }}
-        >
-          <CartesianGrid vertical={false} />
-          <XAxis
-            dataKey="region"
-            tickLine={false}
-            tickMargin={10}
-            axisLine={false}
-            interval={0}
-            fontSize={11}
-          />
-          <ChartTooltip
-            cursor={false}
-            content={<ChartTooltipContent hideLabel />}
-          />
-          <Bar dataKey="powercuts" fill="var(--color-powercuts)">
-            <LabelList
-              position="top"
-              offset={12}
-              className="fill-foreground font-mono"
-              fontSize={12}
-            />
-          </Bar>
-        </BarChart>
-      </ChartContainer>
+      {isLarge ? (
+        <RegionBarChart data={chartData} />
+      ) : (
+        <div aria-hidden="true" className="aspect-video h-full" />
+      )}
       <p className="font-mono text-xs text-window-muted">
         Total power cuts per region today.
       </p>

@@ -1,18 +1,30 @@
 "use client";
 
 import { useMemo, useSyncExternalStore } from "react";
-import OutageTable from "@/components/outageTable/OutageTable";
+import dynamic from "next/dynamic";
 import { Data } from "@/app/types";
 import { BarchartLabel } from "@/components/barchartLabel/BarChartLabel";
 import Navigation from "@/components/navigation/Navigation";
-import LocationMonitor from "@/components/locationMonitor/LocationMonitor";
 import Footer from "@/components/footer/Footer";
 import { SunDim } from "lucide-react";
 import { useOutageNotifications } from "@/hooks/useOutageNotifications";
 import { NotificationBanner } from "@/components/notificationBanner/NotificationBanner";
 import Window from "@/components/window/Window";
-import CommunityScene from "@/components/community/CommunityScene";
 import Link from "next/link";
+
+// The parts below the fold still render on the server, so the HTML and layout
+// don't change. As separate chunks behind their own Suspense boundaries, React
+// hydrates each in its own task instead of one long one that blocks input on
+// slow phones.
+const CommunityScene = dynamic(
+  () => import("@/components/community/CommunityScene"),
+);
+const LocationMonitor = dynamic(
+  () => import("@/components/locationMonitor/LocationMonitor"),
+);
+const OutageTable = dynamic(
+  () => import("@/components/outageTable/OutageTable"),
+);
 
 // The page is prerendered at build time, so a server-rendered clock showed
 // the build time and never matched the client (React error #418). The server
@@ -24,6 +36,42 @@ const subscribeToClock = (onTick: () => void) => {
 const getClockSnapshot = () => Math.floor(Date.now() / 1000) * 1000;
 const getServerClockSnapshot = () => null;
 
+/**
+ * The time and date in the overview row. It has its own component so the
+ * re-render after hydration, and the one every second after that, touch
+ * these two lines and not the table, chart and map below.
+ */
+function OverviewClock() {
+  const now = useSyncExternalStore(
+    subscribeToClock,
+    getClockSnapshot,
+    getServerClockSnapshot,
+  );
+  const currentTime = now === null ? null : new Date(now);
+
+  return (
+    <>
+      <p className="flex items-baseline gap-2">
+        <span className="text-xl font-bold text-foreground">
+          {currentTime?.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          }) ?? "--:--"}
+        </span>
+        <span className="text-xs text-window-muted">time</span>
+      </p>
+
+      <p className="text-window-muted">
+        {currentTime?.toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "long",
+        }) ?? ""}
+      </p>
+    </>
+  );
+}
+
 interface OutageDashboardProps {
   initialData: Data;
   /** True when the server could not reach the dataset. */
@@ -34,13 +82,6 @@ export default function OutageDashboard({
   initialData,
   loadFailed,
 }: OutageDashboardProps) {
-  const now = useSyncExternalStore(
-    subscribeToClock,
-    getClockSnapshot,
-    getServerClockSnapshot,
-  );
-  const currentTime = now === null ? null : new Date(now);
-
   // The server already fetched the data; nothing loads after hydration.
   const outageData = initialData;
   const allOutages = useMemo(
@@ -72,23 +113,7 @@ export default function OutageDashboard({
         <div className="mb-8 flex w-full flex-wrap items-baseline justify-between gap-4 font-mono text-sm uppercase">
           <h1 className="tracking-wider text-window-muted">{"// Overview"}</h1>
 
-          <p className="flex items-baseline gap-2">
-            <span className="text-xl font-bold text-foreground">
-              {currentTime?.toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: true,
-              }) ?? "--:--"}
-            </span>
-            <span className="text-xs text-window-muted">time</span>
-          </p>
-
-          <p className="text-window-muted">
-            {currentTime?.toLocaleDateString("en-GB", {
-              day: "numeric",
-              month: "long",
-            }) ?? ""}
-          </p>
+          <OverviewClock />
         </div>
 
         <div className="mb-4 grid grid-cols-1 items-stretch gap-6 lg:grid-cols-3">

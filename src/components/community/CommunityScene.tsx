@@ -269,7 +269,9 @@ export default function CommunityScene({ outages }: CommunitySceneProps) {
         ref={stageRef}
         className={cn(
           "relative h-[520px] overflow-hidden md:h-[600px]",
-          failed && "h-auto md:h-auto",
+          // The list fallback keeps the map's height, so content below
+          // doesn't jump when the map turns out to be unavailable.
+          failed && "overflow-y-auto",
         )}
       >
         {status === "loading" && (
